@@ -17,6 +17,11 @@ const db = mysql.createConnection({
   database : process.env.DBDATABASE
 });
 
+db.connect(function(err) {
+  if (err) throw err;
+  console.log('db connected');
+});
+
 // Create a server
 const http = require('http');
 const server = http.createServer(app);
@@ -30,6 +35,13 @@ server.listen(PORT, HOST, () => {
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/html/index.html');
   res.statusCode = 200;
+
+  var sql = 
+
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Result: " + result);
+  });
 });
 
 // Serve example.html file
