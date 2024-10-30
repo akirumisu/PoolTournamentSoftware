@@ -34,12 +34,15 @@ server.listen(PORT, HOST, () => {
 // Serve index.html file
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/html/index.html');
-  res.statusCode = 200;
 
-  var sql = 
+  const name = "Joe Smith";
 
-  con.query(sql, function (err, result) {
+  const sql = "INSERT INTO Players (name, elo, numMatches) VALUES (?, null, 0)"
+  const data = [name];
+
+  db.query(sql, data, (err, result) => {
     if (err) throw err;
+    res.statusCode = 200;
     console.log("Result: " + result);
   });
 });
@@ -47,5 +50,15 @@ app.get('/', (req, res) => {
 // Serve example.html file
 app.get('/example', (req, res) => {
   res.sendFile(__dirname + '/public/html/example.html');
-  res.statusCode = 200;
+
+  const name = "Joe Smith";
+
+  const sql = "DELETE FROM Players WHERE name=?"
+  const data = [name];
+
+  db.query(sql, data, (err, result) => {
+    if (err) throw err;
+    res.statusCode = 200;
+    console.log("Result: " + result);
+  });
 });
