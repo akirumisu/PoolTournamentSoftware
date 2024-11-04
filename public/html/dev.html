@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>dev test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<h2>Test Register Form</h2>
+<form id="signup-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    
+    <label for="email">email:</label>
+    <input type="text" id="email" name="email" required>
+
+    <label for="password">password:</label>
+    <input type="text" id="password" name="password" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+$(function() {
+    // Attach event handler to submit form
+    $('#signup-form').submit(function(event) {
+        event.preventDefault();
+
+        const data = {
+            name: $('#name').val(),
+            email: $('#email').val(),
+            password: $('#password').val()
+        };
+
+        console.log(data);
+
+        $.post('/account/register', data, function(response) {
+            // Handle response
+            console.log(response);
+        });
+    });
+});
+</script>
+
+</body>
+
+</html>
