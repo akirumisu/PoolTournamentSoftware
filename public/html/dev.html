@@ -28,14 +28,13 @@ $(function() {
         event.preventDefault();
 
         const data = {
-            name: $('#name').val(),
             email: $('#email').val(),
+            name: $('#name').val(),
             password: $('#password').val()
         };
-
         console.log(data);
 
-        $.post('/account/register', data, function(response) {
+        $.post('/account/create', data, function(response) {
             // Handle response
             console.log(response);
         });

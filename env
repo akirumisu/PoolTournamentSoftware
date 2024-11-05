@@ -1,7 +1,0 @@
-HOST = localhost
-PORT = 8080
-
-DBHOST = 64.181.210.204
-DBUSER = dev
-DBPASSWORD = PoolRootPwd!
-DBDATABASE = db_Main
