@@ -49,6 +49,11 @@ app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
 });
 
+// Serve dev2.html (another developer testing page)
+app.get('/dev2', (req, res) => {
+  res.sendFile(__dirname + '/public/html/dev2.html');
+});
+
 /* Create Player Account */
 app.post('/account/create', (req, res) => {
   const email = req.body.email;
@@ -178,12 +183,27 @@ app.post('/tournament/create', (req, res) => {
   });
 });
 
-/* Get Tournament */
-app.post('/tournament/get', (req, res) => {
+/* Get All Tournaments */
+app.get('/tournament/get-all', (req, res) => {
+  const selectTournamentSQL = "SELECT * FROM Tournaments";
+
+  db.query(selectTournamentSQL, (err, result) => {
+    if (err) {
+      console.error("Error getting tournaments: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+/* Get Specific Tournament */
+app.post('/tournament/get-specific', (req, res) => {
   const tournamentID = req.body.tournamentID;
 
   const data = [tournamentID];
-  const selectTournamentSQL = "SELECT * FROM Tournament WHERE tournamentID = ?";
+  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
@@ -222,7 +242,7 @@ app.post('/tournament/delete', (req, res) => {
   const organizerID = req.body.organizerID;
 
   const data = [tournamentID, organizerID];
-  const deleteTournamentSQL = "DELETE FROM Tournament WHERE tournamentID = ? and organizerID = ?";
+  const deleteTournamentSQL = "DELETE FROM Tournaments WHERE tournamentID = ? and organizerID = ?";
 
   db.query(deleteTournamentSQL, data, (err, result) => {
     if (err) {
