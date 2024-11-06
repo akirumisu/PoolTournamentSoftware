@@ -215,10 +215,9 @@ app.post('/tournament/get-specific', (req, res) => {
 app.post('/tournament/register', (req, res) => {
   const tournamentID = req.body.tournamentID;
   const playerID = req.body.playerID;
-  const seed = req.body.seed;
 
   const data = [tournamentID, playerID];
-  const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, ?)";
+  const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, null)";
 
   db.query(registerTournamentSQL, data, (err, result) => {
     if (err) {
@@ -228,6 +227,24 @@ app.post('/tournament/register', (req, res) => {
     }
 
     res.status(200).json('Success');
+  });
+});
+
+/* Get Players In Tournament */
+app.post('/tournament/get-players', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+
+  const data = [tournamentID];
+  const registerTournamentSQL = "SELECT * FROM PlayersInTournament WHERE tournamentID = ?";
+
+  db.query(registerTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error getting players in tournament: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json(result);
   });
 });
 

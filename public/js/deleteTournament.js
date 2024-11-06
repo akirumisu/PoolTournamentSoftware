@@ -3,7 +3,7 @@ $(function() {
     event.preventDefault();
 
     const data = {
-      tournamentID: $('#tournamentID').val(),
+      tournamentID: $('#delete-tournament-tournamentID').val(),
       organizerID: 11
     };
     console.log(data);

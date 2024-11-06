@@ -40,8 +40,9 @@
 
 <!-- TODO/Note: As mentioned in server.js, this is basically the same implementation as the login form, but it returns playerID instead. It may be meant to do something else.-->
 <h3>Test Account Retrieval Form</h3>
+
 <form id="account-get-form">
-    
+
     <label for="email">email:</label>
     <input type="text" id="account-get-email" name="email" required>
 
@@ -85,11 +86,11 @@
 
 <h2>Create Tournament</h2>
 <form id="create-tournament-form">
-  <label for="name">Name:</label>
-  <input type="text" id="name" name="name" required>
+  <label for="create-tournament-name">Name:</label>
+  <input type="text" id="create-tournament-name" name="create-tournament-name" required>
   
-  <label for="description">description:</label>
-  <input type="text" id="description" name="description" required>
+  <label for="create-tournament-description">description:</label>
+  <input type="text" id="create-tournament-description" name="create-tournament-description" required>
   <!--
   <label for="date">date:</label>
   <input type="date" id="date" name="date" required>
@@ -138,35 +139,61 @@ automatically populated from the db using using viewTournaments.js and server.js
 
 <h2>Delete Tournaments</h2>
 <form id="delete-tournament-form">
-  <label for="tournamentID">tournamentID:</label>
-  <input type="text" id="tournamentID" name="tournamentID" required>
+  <label for="delete-tournament-tournamentID">tournamentID:</label>
+  <input type="text" id="delete-tournament-tournamentID" name="delete-tournament-tournamentID" required>
 
   <button type="submit">Submit</button>
 </form>
+
+<h2>Register For Tournaments</h2>
+<form id="register-tournament-form">
+  <label for="register-tournament-tournamentID">tournamentID:</label>
+  <input type="text" id="register-tournament-tournamentID" name="register-tournament-tournamentID" required>
+
+  <label for="register-tournament-playerID">playerID:</label>
+  <input type="text" id="register-tournament-playerID" name="register-tournament-playerID" required>
+
+  <button type="submit">Submit</button>
+</form>
+
+<h2>Get Tournament Players</h2>
+<form id="get-tournament-players-form">
+  <label for="tournament-players-tournamentID">tournamentID:</label>
+  <input type="text" id="tournament-players-tournamentID" name="tournament-players-tournamentID" required>
+
+  <button type="submit">Submit</button>
+</form>
+
 
 <!--/account/create-->
 <script src="/js/createAccount.js" type="text/javascript"></script>
 
 <!--/account/login-->
-<script src="/js/loginAccount" type="text/javascript"></script>
+<script src="/js/loginAccount.js" type="text/javascript"></script>
 
 <!--/account/delete-->
-<script src="/js/deleteAccount" type="text/javascript"></script>
+<script src="/js/deleteAccount.js" type="text/javascript"></script>
 
 <!--/account/elo/set-->
-<script src="/js/setElo" type="text/javascript"></script>
+<script src="/js/setElo.js" type="text/javascript"></script>
 
 <!--/account/get-->
-<script src="/js/viewAccount" type="text/javascript"></script>
+<script src="/js/viewAccount.js" type="text/javascript"></script>
 
 <!--/tournament/create-->
 <script src="/js/createTournament.js" type="text/javascript"></script>
 
-<!--/tournament/tournament/get-all-->
+<!--/tournament/get-all-->
 <script src="/js/viewAllTournaments.js" type="text/javascript"></script>
 
-<!--/tournament/tournament/delete-->
+<!--/tournament/delete-->
 <script src="/js/deleteTournament.js" type="text/javascript"></script>
+
+<!--/tournament/register-->
+<script src="/js/registerTournament.js" type="text/javascript"></script>
+
+<!--/tournament/get-players-->
+<script src="/js/viewTournamentPlayers.js" type="text/javascript"></script>
 
 </body>
 

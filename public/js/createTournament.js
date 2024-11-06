@@ -3,8 +3,8 @@ $(function() {
     event.preventDefault();
 
     const data = {
-      name: $('#name').val(),
-      description: $('#description').val(),
+      name: $('#create-tournament-name').val(),
+      description: $('#create-tournament-description').val(),
       /*
       date: $('#date').val(),
       location: $('#location').val(),
@@ -32,7 +32,7 @@ $(function() {
       isSeeded: 0,
       organizerID: 11,
       gamemode: 12,
-      isActive: 1
+      isActive: 0
     };
     console.log(data);
 
