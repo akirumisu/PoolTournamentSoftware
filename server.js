@@ -281,21 +281,20 @@ app.post('/account/get', (req, res) => {
 
   console.log(data);
 
-  db.query(selectAccountSQL, data, (err1, result1) => {
-    if (err1) {
-      console.error("Error finding playerID: ", err1);
+  db.query(selectAccountSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error finding playerID: ", err);
       res.status(500).json('Error');
       return;
     }
-    console.log(result1);
+    console.log(result);
 
-    if (result1.length === 0) {
-      res.status(404).json('Invalid credentials');
+    if (result.length === 0) {
+      res.status(404).json('No Matching Players');
       return;
     }
 
-    playerID = result1[0].playerID;
-    res.status(200).json('Success: PlayerID = ' + playerID);
+    res.status(200).json(result);
   });
 });
 
