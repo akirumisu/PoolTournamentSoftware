@@ -38,16 +38,24 @@
 </form>
 <br>
 
-<!-- TODO/Note: As mentioned in server.js, this is basically the same implementation as the login form, but it returns playerID instead. It may be meant to do something else.-->
 <h3>Test Account Retrieval Form</h3>
 
 <form id="account-get-form">
+    
+    <label for="name">Name:</label>
+    <input type="text" id="account-get-name" name="name" required>
 
-    <label for="email">email:</label>
-    <input type="text" id="account-get-email" name="email" required>
+    <label for="low-elo">Low elo:</label>
+    <input type="text" id="account-get-low-elo" value="0" name="low-elo" required>
 
-    <label for="password">password:</label>
-    <input type="text" id="account-get-password" name="password" required>
+    <label for="high-elo">High elo:</label>
+    <input type="text" id="account-get-high-elo" value="1000" name="high-elo" required>
+
+    <label for="low-numMatches">Low numMatches:</label>
+    <input type="text" id="account-get-low-numMatches" value="0" name="low-numMatches" required>
+
+    <label for="high-numMatches">High numMatches:</label>
+    <input type="text" id="account-get-high-numMatches" value="99999" name="high-numMatches" required>
 
     <button type="submit">Submit</button>
 </form>
