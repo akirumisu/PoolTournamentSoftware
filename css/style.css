@@ -4,9 +4,9 @@ body {
 }
 
 .bordered-container {
-    border: 20px solid #aaaaaa;
+    border: 1vw solid #aaaaaa;
     height: 100%;
-    margin: 10;
+    margin: 0;
     box-sizing: border-box;
     align-items: top;
 }
@@ -22,10 +22,20 @@ body {
     margin-left: auto;
 }
 .text-button {
-        background: none;
-        border: none;
-        padding: 10;
-        color: inherit;
-        cursor: pointer;
-        font-size: larger;
-    }
+    background: none;
+    border: none;
+    padding: 10;
+    color: inherit;
+    cursor: pointer;
+    font-size: larger;
+}
+.inner-container{
+    padding-top: 10vw;
+    padding-left: 10vw;
+}
+.paragraph {
+    max-width: 25vw
+}
+.image {
+    width: 10%; 
+}
