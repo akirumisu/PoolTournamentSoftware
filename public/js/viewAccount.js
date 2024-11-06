@@ -4,8 +4,11 @@ $(function() {
       event.preventDefault();
 
       const data = {
-          email: $('#account-get-email').val(),
-          password: $('#account-get-password').val()
+          name: $('#account-get-name').val(),
+          lowElo: $('#account-get-low-elo').val(),
+          highElo: $('#account-get-high-elo').val(),
+          lowNumMatches: $('#account-get-low-numMatches').val(),
+          highNumMatches: $('#account-get-high-numMatches').val()
       };
       console.log(data);
 

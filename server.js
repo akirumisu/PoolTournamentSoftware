@@ -27,6 +27,7 @@ db.connect(function(err) {
 
 // Create a server
 const http = require('http');
+const { log } = require('console');
 const server = http.createServer(app);
 
 // Start server
@@ -251,13 +252,17 @@ app.post('/tournament/delete', (req, res) => {
 });
 
 /* Get Player ELO */
-// TODO/Note: This is very similar to /account/login in its current implementation. Not sure if it was meant to have a different functionality. Please review. -Kai
 app.post('/account/get', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const name = req.body.name;
+  const lowElo = parseInt(req.body.lowElo);
+  const highElo = parseInt(req.body.highElo);
+  const lowNumMatches = parseInt(req.body.lowNumMatches);
+  const highNumMatches = parseInt(req.body.highNumMatches);
 
-  const data = [email, password];
-  const selectAccountSQL = "SELECT playerID FROM Players WHERE email = ? AND password = ?";
+  const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
+  const selectAccountSQL = "SELECT playerID FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
+
+  console.log(data);
 
   db.query(selectAccountSQL, data, (err1, result1) => {
     if (err1) {
@@ -265,6 +270,7 @@ app.post('/account/get', (req, res) => {
       res.status(500).json('Error');
       return;
     }
+    console.log(result1);
 
     if (result1.length === 0) {
       res.status(404).json('Invalid credentials');
