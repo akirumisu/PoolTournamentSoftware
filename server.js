@@ -49,11 +49,6 @@ app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
 });
 
-// Serve dev2.html (another developer testing page)
-app.get('/dev2', (req, res) => {
-  res.sendFile(__dirname + '/public/html/dev2.html');
-});
-
 /* Create Player Account */
 app.post('/account/create', (req, res) => {
   const email = req.body.email;
