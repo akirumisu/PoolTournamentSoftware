@@ -101,7 +101,7 @@ app.post('/account/login', (req, res) => {
       return;
     }
 
-    if (result1.rows.length === 0) {
+    if (result1.length === 0) {
       res.status(200).json('Invalid Email');
     }
     
@@ -115,7 +115,7 @@ app.post('/account/login', (req, res) => {
           return;
         }
 
-        if (result1.rows.length === 0) {
+        if (result1.length === 0) {
           res.status(200).json('Incorrect Password');
         } else {
           res.status(200).json('Success');
@@ -236,44 +236,65 @@ app.post('/tournament/delete', (req, res) => {
 });
 
 /* Get Player ELO */
-app.post('/account/elo/get', (req, res) => {
-  const playerID = req.body.playerID;
-  const elo = parseInt(req.body.elo);
+// TODO/Note: This is very similar to /account/login in its current implementation. Not sure if it was meant to have a different functionality. Please review. -Kai
+app.post('/account/get', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
 
-  const data = [playerID, elo];
-  const selectEloSQL = "SELECT elo FROM Players WHERE playerID = ?";
+  const data = [email, password];
+  const selectAccountSQL = "SELECT playerID FROM Players WHERE email = ? AND password = ?";
 
-  db.query(selectEloSQL, data, (err, result) => {
-    if (err) {
-      console.error("Error selecting elo: ", err);
+  db.query(selectAccountSQL, data, (err1, result1) => {
+    if (err1) {
+      console.error("Error finding playerID: ", err1);
       res.status(500).json('Error');
       return;
     }
 
-    if (result.rows.length === 0) {
-      res.status(404).json('Invalid playerID');
+    if (result1.length === 0) {
+      res.status(404).json('Invalid credentials');
       return;
     }
 
-    res.status(200).json(result.rows.elo);
+    playerID = result1[0].playerID;
+    res.status(200).json('Success: PlayerID = ' + playerID);
   });
 });
 
 /* Set Player ELO */
 app.post('/account/elo/set', (req, res) => {
-  const playerID = req.body.playerID;
+  const email = req.body.email;
+  const password = req.body.password;
   const elo = parseInt(req.body.elo);
 
-  const data = [playerID, elo];
+  const data = [email, password, elo];
+  const checkPlayerSQL = "SELECT playerID FROM Players WHERE email = ? AND password = ?";
   const updateEloSQL = "UPDATE Players SET elo = ? WHERE playerID = ?";
 
-  db.query(updateEloSQL, data, (err, result) => {
-    if (err) {
-      console.error("Error updating elo: ", err);
+  db.query(checkPlayerSQL, data.slice(0, 2), (err1, result1) => {
+    if (err1) {
+      console.error("Error finding playerID: ", err1);
       res.status(500).json('Error');
       return;
     }
 
-    res.status(200).json('Success');
+    if (result1.length === 0) {
+      res.status(404).json('Invalid credentials');
+      return;
+    }
+
+    playerID = result1[0].playerID;
+
+    db.query(updateEloSQL, [elo, playerID], (err2, result2) => {
+      if (err2) {
+        console.error("Error updating elo: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+
+      console.log(result2);
+
+      res.status(200).json('Success');
+    });
   });
 });

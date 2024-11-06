@@ -7,20 +7,81 @@
 </head>
 <body>
 
-<h2>Test Register Form</h2>
+<h1>Account Forms</h1>
+
+<h3>Test Register Form</h3>
 <form id="signup-form">
     <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required>
+    <input type="text" id="register-name" name="name" required>
     
     <label for="email">email:</label>
-    <input type="text" id="email" name="email" required>
+    <input type="text" id="register-email" name="email" required>
 
     <label for="password">password:</label>
-    <input type="text" id="password" name="password" required>
+    <input type="text" id="register-password" name="password" required>
+
+    <button type="submit">Submit</button>
+</form>
+<br>
+<h3>Test Login Form</h3>
+<form id="login-form">
+    
+    <label for="email">email:</label>
+    <input type="text" id="login-email" name="email" required>
+
+    <label for="password">password:</label>
+    <input type="text" id="login-password" name="password" required>
+
+    <button type="submit">Submit</button>
+</form>
+<br>
+
+<!-- TODO/Note: As mentioned in server.js, this is basically the same implementation as the login form, but it returns playerID instead. It may be meant to do something else.-->
+<h3>Test Account Retrieval Form</h3>
+<form id="account-get-form">
+    
+    <label for="email">email:</label>
+    <input type="text" id="account-get-email" name="email" required>
+
+    <label for="password">password:</label>
+    <input type="text" id="account-get-password" name="password" required>
 
     <button type="submit">Submit</button>
 </form>
 
+<br>
+<h3>Test Delete Form</h3>
+<form id="delete-form">
+    
+    <label for="email">email:</label>
+    <input type="text" id="delete-email" name="email" required>
+
+    <label for="password">password:</label>
+    <input type="text" id="delete-password" name="password" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<br>
+<h3>Test Elo Setting Form</h3>
+<form id="elo-set-form">
+    
+    <label for="email">email:</label>
+    <input type="text" id="elo-set-email" name="email" required>
+
+    <label for="password">password:</label>
+    <input type="text" id="elo-set-password" name="password" required>
+
+    <label for="elo">elo:</label>
+    <input type="text" id="elo-set-elo" name="elo" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<br>
+<h1>Tournament Forms</h1>
+
+<!--/account/create/-->
 <script>
 $(function() {
     // Attach event handler to submit form
@@ -28,9 +89,9 @@ $(function() {
         event.preventDefault();
 
         const data = {
-            email: $('#email').val(),
-            name: $('#name').val(),
-            password: $('#password').val()
+            email: $('#register-email').val(),
+            name: $('#register-name').val(),
+            password: $('#register-password').val()
         };
         console.log(data);
 
@@ -40,6 +101,91 @@ $(function() {
         });
     });
 });
+</script>
+
+<!--/account/login/-->
+<script>
+    $(function() {
+        // Attach event handler to submit form
+        $('#login-form').submit(function(event) {
+            event.preventDefault();
+    
+            const data = {
+                email: $('#login-email').val(),
+                password: $('#login-password').val()
+            };
+            console.log(data);
+    
+            $.post('/account/login', data, function(response) {
+                // Handle response
+                console.log(response);
+            });
+        });
+    });
+</script>
+
+<!--/account/delete/-->
+<script>
+    $(function() {
+        // Attach event handler to submit form
+        $('#delete-form').submit(function(event) {
+            event.preventDefault();
+    
+            const data = {
+                email: $('#delete-email').val(),
+                password: $('#delete-password').val()
+            };
+            console.log(data);
+    
+            $.post('/account/delete', data, function(response) {
+                // Handle response
+                console.log(response);
+            });
+        });
+    });
+</script>
+
+<!--/account/elo/set/-->
+<script>
+    $(function() {
+        // Attach event handler to submit form
+        $('#elo-set-form').submit(function(event) {
+            event.preventDefault();
+    
+            const data = {
+                email: $('#elo-set-email').val(),
+                password: $('#elo-set-password').val(),
+                elo: $('#elo-set-elo').val()
+            };
+            console.log(data);
+    
+            $.post('/account/elo/set', data, function(response) {
+                // Handle response
+                console.log(response);
+            });
+        });
+    });
+</script>
+
+<!--/account/get/-->
+<script>
+    $(function() {
+        // Attach event handler to submit form
+        $('#account-get-form').submit(function(event) {
+            event.preventDefault();
+    
+            const data = {
+                email: $('#account-get-email').val(),
+                password: $('#account-get-password').val()
+            };
+            console.log(data);
+    
+            $.post('/account/get', data, function(response) {
+                // Handle response
+                console.log(response);
+            });
+        });
+    });
 </script>
 
 </body>
