@@ -40,6 +40,11 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/html/index.html');
 });
 
+// Serve home.html file
+app.get('/home', (req, res) => {
+  res.sendFile(__dirname + '/public/html/home.html');
+});
+
 // Serve example.html file
 app.get('/example', (req, res) => {
   res.sendFile(__dirname + '/public/html/example.html');
