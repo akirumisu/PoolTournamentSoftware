@@ -186,7 +186,7 @@ app.post('/tournament/create', (req, res) => {
   const isSeeded = req.body.isSeeded;
   const organizerID = req.body.organizerID;
   const gamemode = req.body.gamemode;
-  const isActive = req.body.isActive;
+  const isActive = req.body.isActive; // 0 = before, 1 = active, 2 = ended
 
   const data = [name, description, date, location, lowEloLimit,
                 highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
@@ -243,16 +243,101 @@ app.post('/tournament/register', (req, res) => {
   const playerID = req.body.playerID;
 
   const data = [tournamentID, playerID];
-  const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, null)";
 
-  db.query(registerTournamentSQL, data, (err, result) => {
+  var playerElo; // The registering player's elo
+  var tournamentSpots; // Number of spots in the tournament
+
+  // Check if the player exists and save their elo
+  const checkPlayerDetails = "SELECT * FROM Players WHERE PlayerID = ?";
+  db.query(checkPlayerDetails, playerID, (err, result) => {
     if (err) {
-      console.error("Error registering for tournament: ", err);
-      res.status(500).json('Error');
+      console.error("Error getting Players: ", err);
+      res.status(500).json('Player Error');
       return;
     }
 
-    res.status(200).json('Success');
+    if (result.length === 0) {
+      res.status(200).json('Player Does Not Exist');
+      return;
+    }
+
+    // Player exists! Get elo
+    playerElo = result[0].elo;
+
+    // Player exists, now check the tournament details
+    const checkTournamentDetails = "SELECT * FROM Tournaments WHERE TournamentID = ?";
+    db.query(checkTournamentDetails, tournamentID, (err, result) => {
+      if (err) {
+        console.error("Error getting Tournaments: ", err);
+        res.status(500).json('Tournament Error');
+        return;
+      }
+  
+      if (result.length === 0) {
+        res.status(200).json('Tournament Does Not Exist');
+        return;
+      }
+
+      if (result[0].isActive === 1) {
+        res.status(200).json('Tournament Already Started');
+        return;
+      }
+
+      if (result[0].isActive === 2) {
+        res.status(200).json('Tournament Already Ended');
+        return;
+      }
+
+      // Tournament exists and hasn't started yet. Get bracketSize
+      tournamentSpots = result[0].bracketSize;
+  
+      if (playerElo < result[0].lowEloLimit || playerElo > result[0].highEloLimit) {
+        res.status(200).json('Outside Elo Range');
+        return;
+      }
+      
+      // Check how many players are in the tournament
+      const checkPlayersInTournament = "SELECT playerID FROM PlayersInTournament WHERE tournamentID = ?";
+      db.query (checkPlayersInTournament, data, (err, result) => {
+        if (err) {
+          console.error("Error getting PlayersInTournament: ", err);
+          res.status(500).json('PlayersInTournament Error');
+          return;
+        }
+
+        if (result.length >= tournamentSpots) {
+          res.status(200).json('Tournament Full');
+          return;
+        }
+
+        // Check the PlayersInTournament table for duplicates
+        const checkDuplicateEntry = "SELECT * FROM PlayersInTournament WHERE tournamentID = ? AND playerID = ?";
+        db.query (checkDuplicateEntry, data, (err, result) => {
+          if (err) {
+            console.error("Error getting PlayersInTournament: ", err);
+            res.status(500).json('PlayersInTournament Error');
+            return;
+          }
+      
+          if (result.length > 0) {
+            res.status(200).json('Already Registered');
+            return;
+          }
+      
+          // Finally, add the player into the tournament
+          const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, null)";
+          db.query(registerTournamentSQL, data, (err, result) => {
+            if (err) {
+              console.error("Error getting PlayersInTournament: ", err);
+              res.status(500).json('PlayersInTournament Error');
+              return;
+            }
+        
+            res.status(200).json('Success');
+          });
+        });
+      });
+    });
   });
 });
 
