@@ -45,6 +45,26 @@ app.get('/example', (req, res) => {
   res.sendFile(__dirname + '/public/html/example.html');
 });
 
+// Serve about.html file
+app.get('/about', (req, res) => {
+  res.sendFile(__dirname + '/public/html/about.html');
+});
+
+// Serve contact.html file
+app.get('/contact', (req, res) => {
+  res.sendFile(__dirname + '/public/html/contact.html');
+});
+
+// Serve login.html file
+app.get('/login', (req, res) => {
+  res.sendFile(__dirname + '/public/html/login.html');
+});
+
+// Serve createaccount.html file
+app.get('/createaccount', (req, res) => {
+  res.sendFile(__dirname + '/public/html/createaccount.html');
+});
+
 // Serve dev.html (developer testing page)
 app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
