@@ -1,0 +1,42 @@
+body {
+    height: 100vh;
+    background: linear-gradient(to bottom, #ffffff, #555555);
+}
+
+.bordered-container {
+    border: 1vw solid #aaaaaa;
+    height: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    align-items: top;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-right{
+    display: flex;
+    gap: 1rem;
+    margin-left: auto;
+}
+.text-button {
+    background: none;
+    border: none;
+    padding: 10;
+    color: inherit;
+    cursor: pointer;
+    font-size: larger;
+}
+.inner-container{
+    padding-top: 10vw;
+    padding-left: 10vw;
+}
+.paragraph {
+    max-width: 25vw
+}
+.image {
+    width: 10%; 
+}

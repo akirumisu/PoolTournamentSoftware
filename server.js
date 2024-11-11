@@ -1,9 +1,12 @@
 // .env variables
 require('dotenv').config()
-// Use express to serve static files
+// Use express to serve static files in the public directory
 const express = require('express');
 const app = express();
 app.use(express.static('public', {extensions:['html']}));
+// json + body parsing functionality
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 var HOST = process.env.HOST;
 var PORT = process.env.PORT;
@@ -24,6 +27,7 @@ db.connect(function(err) {
 
 // Create a server
 const http = require('http');
+const { log } = require('console');
 const server = http.createServer(app);
 
 // Start server
@@ -41,121 +45,293 @@ app.get('/example', (req, res) => {
   res.sendFile(__dirname + '/public/html/example.html');
 });
 
-// Register an account using a name, email, and password
-app.post('/account/register', (req, res) => {
-  const name = req.body.name;
+// Serve dev.html (developer testing page)
+app.get('/dev', (req, res) => {
+  res.sendFile(__dirname + '/public/html/dev.html');
+});
+
+/* Create Player Account */
+app.post('/account/create', (req, res) => {
   const email = req.body.email;
+  const name = req.body.name;
   const password = req.body.password;
 
-  const data = [name, email, password];
-  const checkDuplicateSQL = "SELECT playerID FROM players WHERE email = ?";
+  const data = [email, name, password];
+  const checkDuplicateSQL = "SELECT playerID FROM Players WHERE email = ?";
 
   db.query(checkDuplicateSQL, data, (err1, result1) => {
     if (err1) {
       console.error("Error selecting playerID: ", err1);
-      res.status(500).json({error: "Error"});
+      res.status(500).json('Error');
       return;
     }
 
-    if (result1.rows.length !== 0) {
-      res.status(200).json({message: "Duplicate Email"});
+    if (result1.length !== 0) {
+      res.status(200).json('Duplicate Email');
       return;
     }
     
     else {
-      const insertNewPlayerSQL = "INSERT INTO players (name, elo, numMatches, email, password, isPaid) VALUES (?, 100, 0, ?, ?, 0)";
+      const insertNewPlayerSQL = "INSERT INTO Players (email, name, password, elo, numMatches, isPaid) VALUES (?, ?, ?, 100, 0, 0)";
       
       db.query(insertNewPlayerSQL, data, (err2, result2) => {
         if (err2) {
           console.error("Error inserting new player: ", err2);
-          res.status(500).json({error: "Error"});
+          res.status(500).json('Error');
           return;
         }
 
-        res.status(200).json({message: "Success"});
+        res.status(200).json('Success');
       });
     }
   });
 });
 
-// Login using an email and password
+/* Login To Player Account */
 app.post('/account/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
   const data = [email, password];
-  const findEmailSQL = "SELECT email FROM players WHERE email = ?"
+  const findEmailSQL = "SELECT email FROM Players WHERE email = ?"
 
   db.query(findEmailSQL, data, (err1, result1) => {
     if (err1) {
       console.error("Error selecting email: ", err1);
-      res.status(500).json({error: "Error"});
+      res.status(500).json('Error');
       return;
     }
 
-    if (result1.rows.length === 0) {
-      res.status(200).json({message: "Invalid Email"});
+    if (result1.length === 0) {
+      res.status(200).json('Invalid Email');
     }
     
     else {
-      const returnEmailSQL = "SELECT email FROM players WHERE email = ? and password = ?";
+      const returnEmailSQL = "SELECT email FROM Players WHERE email = ? and password = ?";
       
       db.query(returnEmailSQL, data, (err2, result2) => {
         if (err2) {
           console.error("Error selecting email with password: ", err2);
-          res.status(500).json({error: "Error"});
+          res.status(500).json('Error');
           return;
         }
 
-        if (result1.rows.length === 0) {
-          res.status(200).json({message: "Incorrect Password"});
+        if (result1.length === 0) {
+          res.status(200).json('Incorrect Password');
         } else {
-          res.status(200).json({message: "Success"});
+          res.status(200).json('Success');
         }
       });
     }
   });
 });
 
-// Return elo from a specific playerID
-app.post('/get/elo', (req, res) => {
-  const playerID = req.body.playerID;
-  const elo = parseInt(req.body.elo);
+/* Delete Player Account */
+app.post('/account/delete', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
 
-  const data = [playerID, elo];
-  const selectEloSQL = "SELECT elo FROM players WHERE playerID = ?";
+  const data = [email, password];
+  const findEmailSQL = "DELETE FROM Players WHERE email = ? and password = ?";
 
-  db.query(selectEloSQL, data, (err, result) => {
+  db.query(findEmailSQL, data, (err, result) => {
     if (err) {
-      console.error("Error selecting elo: ", err);
-      res.status(500).json({error: "Error"});
+      console.error("Error deleting account: ", err);
+      res.status(500).json('Error');
       return;
     }
 
-    if (result.rows.length === 0) {
-      res.status(404).json({error: "Invalid playerID"});
-      return;
-    }
-
-    res.status(200).json(result.rows.elo);
+    res.status(200).json('Success');
   });
 });
 
-// Update elo of a specific playerID
-app.post('/update/elo', (req, res) => {
-  const playerID = req.body.playerID;
-  const elo = parseInt(req.body.elo);
+/* Create Tournament */
+app.post('/tournament/create', (req, res) => {
+  const name = req.body.name;
+  const description = req.body.description;
+  const date = req.body.date;
+  const location = req.body.location;
+  const lowEloLimit = req.body.lowEloLimit;
+  const highEloLimit = req.body.highEloLimit;
+  const isRanked = req.body.isRanked;
+  const greensFee = req.body.greensFee;
+  const placesPaid = req.body.placesPaid;
+  const addedMoney = req.body.addedMoney;
+  const bracketSize = req.body.bracketSize;
+  const isSeeded = req.body.isSeeded;
+  const organizerID = req.body.organizerID;
+  const gamemode = req.body.gamemode;
+  const isActive = req.body.isActive;
 
-  const data = [playerID, elo];
-  const updateEloSQL = "UPDATE players SET elo = ? WHERE playerID = ?";
+  const data = [name, description, date, location, lowEloLimit,
+                highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
+                bracketSize, isSeeded, organizerID, gamemode, isActive];
+  const createTournamentSQL = "INSERT INTO Tournaments (name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, placesPaid, addedMoney, bracketSize, isSeeded, organizerID, gamemode, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-  db.query(updateEloSQL, data, (err, result) => {
+  db.query(createTournamentSQL, data, (err, result) => {
     if (err) {
-      console.error("Error updating elo: ", err);
-      res.status(500).json({error: "Error"});
+      console.error("Error creating tournament: ", err);
+      res.status(500).json('Error');
       return;
     }
 
-    res.status(200).json({message: "Success"});
+    res.status(200).json('Success');
+  });
+});
+
+/* Get All Tournaments */
+app.get('/tournament/get-all', (req, res) => {
+  const selectTournamentSQL = "SELECT * FROM Tournaments";
+
+  db.query(selectTournamentSQL, (err, result) => {
+    if (err) {
+      console.error("Error getting tournaments: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+/* Get Specific Tournament */
+app.post('/tournament/get-specific', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+
+  const data = [tournamentID];
+  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
+
+  db.query(selectTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error selecting tournament: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+/* Register For Tournament */
+app.post('/tournament/register', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const playerID = req.body.playerID;
+
+  const data = [tournamentID, playerID];
+  const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, null)";
+
+  db.query(registerTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error registering for tournament: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
+  });
+});
+
+/* Get Players In Tournament */
+app.post('/tournament/get-players', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+
+  const data = [tournamentID];
+  const registerTournamentSQL = "SELECT * FROM PlayersInTournament WHERE tournamentID = ?";
+
+  db.query(registerTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error getting players in tournament: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+/* Delete Tournament */
+app.post('/tournament/delete', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+
+  const data = [tournamentID, organizerID];
+  const deleteTournamentSQL = "DELETE FROM Tournaments WHERE tournamentID = ? and organizerID = ?";
+
+  db.query(deleteTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error deleting tournament: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
+  });
+});
+
+/* Get Player ELO */
+app.post('/account/get', (req, res) => {
+  const name = req.body.name;
+  const lowElo = parseInt(req.body.lowElo);
+  const highElo = parseInt(req.body.highElo);
+  const lowNumMatches = parseInt(req.body.lowNumMatches);
+  const highNumMatches = parseInt(req.body.highNumMatches);
+
+  const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
+  const selectAccountSQL = "SELECT playerID FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
+
+  console.log(data);
+
+  db.query(selectAccountSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error finding playerID: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+    console.log(result);
+
+    if (result.length === 0) {
+      res.status(404).json('No Matching Players');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+/* Set Player ELO */
+app.post('/account/elo/set', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const elo = parseInt(req.body.elo);
+
+  const data = [email, password, elo];
+  const checkPlayerSQL = "SELECT playerID FROM Players WHERE email = ? AND password = ?";
+  const updateEloSQL = "UPDATE Players SET elo = ? WHERE playerID = ?";
+
+  db.query(checkPlayerSQL, data.slice(0, 2), (err1, result1) => {
+    if (err1) {
+      console.error("Error finding playerID: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(404).json('Invalid credentials');
+      return;
+    }
+
+    playerID = result1[0].playerID;
+
+    db.query(updateEloSQL, [elo, playerID], (err2, result2) => {
+      if (err2) {
+        console.error("Error updating elo: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+
+      console.log(result2);
+
+      res.status(200).json('Success');
+    });
   });
 });
