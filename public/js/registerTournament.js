@@ -10,8 +10,31 @@ $(function() {
         console.log(data);
 
         $.post('/tournament/register', data, function(response) {
-            // Handle response
             console.log(response);
+            if (response === 'Player Does Not Exist') {
+                //add code here
+            }
+            if (response === 'Tournament Does Not Exist') {
+                //add code here
+            }
+            if (response === 'Tournament Already Started') {
+                //add code here
+            }
+            if (response === 'Tournament Already Ended') {
+                //add code here
+            }
+            if (response === 'Tournament Full') {
+                //add code here
+            }
+            if (response === 'Outside Elo Range') {
+                //add code here
+            }
+            if (response === 'Already Registered') {
+                //add code here
+            }
+            if (response === 'Success') {
+                //add code here
+            }
         });
     });
 });

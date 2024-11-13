@@ -32,6 +32,9 @@ body {
 .inner-container{
     padding-top: 10vw;
     padding-left: 10vw;
+    padding-right: 10vw;
+    margin-left: auto; 
+    margin-right: 0;
 }
 .paragraph {
     max-width: 25vw
