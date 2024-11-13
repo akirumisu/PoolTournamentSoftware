@@ -132,7 +132,7 @@ app.post('/account/login', (req, res) => {
     }
     
     else {
-      const returnEmailSQL = "SELECT email FROM Players WHERE email = ? and password = ?";
+      const returnEmailSQL = "SELECT playerID FROM Players WHERE email = ? and password = ?";
       
       db.query(returnEmailSQL, data, (err2, result2) => {
         if (err2) {
@@ -141,10 +141,10 @@ app.post('/account/login', (req, res) => {
           return;
         }
 
-        if (result1.length === 0) {
+        if (result2.length === 0) {
           res.status(200).json('Incorrect Password');
         } else {
-          res.status(200).json('Success');
+          res.status(200).json('Success,' + result2[0].playerID);
         }
       });
     }

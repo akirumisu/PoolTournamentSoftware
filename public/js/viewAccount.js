@@ -14,7 +14,7 @@ $(function() {
 
     $.post('/account/get', data, function(response) {
         // Handle response
-      $('#account-get-row').empty(); # Empty the account list before repopulating.
+      $('#account-get-row').empty(); // Empty the account list before repopulating.
       for (let el in response) {
         let player = response[el];
         // Using bootstrap columns, we include a length of 4. 12/4, This means every 3 tournaments is a new row.
