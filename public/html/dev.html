@@ -44,7 +44,7 @@
 <form id="account-get-form">
     
     <label for="name">Name:</label>
-    <input type="text" id="account-get-name" name="name" required>
+    <input type="text" id="account-get-name" name="name">
 
     <label for="low-elo">Low elo:</label>
     <input type="text" id="account-get-low-elo" value="0" name="low-elo" required>
@@ -60,6 +60,9 @@
 
     <button type="submit">Submit</button>
 </form>
+<!-- This creates a grid using bootstrap's row and column feature. The grid is
+automatically populated from the db using using viewTournaments.js and server.js -->
+<div class="row" id="account-get-row"></div>
 
 <br>
 <h3>Test Delete Form</h3>

@@ -297,7 +297,7 @@ app.post('/account/get', (req, res) => {
   const highNumMatches = parseInt(req.body.highNumMatches);
 
   const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
-  const selectAccountSQL = "SELECT playerID FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
 
   console.log(data);
 
