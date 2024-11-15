@@ -75,6 +75,11 @@ app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
 });
 
+// Serve tournament.html
+app.get('/tournament', (req, res) => {
+  res.sendFile(__dirname + '/public/html/tournament.html');
+});
+
 /* Create Player Account */
 app.post('/account/create', (req, res) => {
   const email = req.body.email;
@@ -232,7 +237,12 @@ app.post('/tournament/get-specific', (req, res) => {
       return;
     }
 
-    res.status(200).json(result);
+    if (result.length === 0) {
+      res.status(404).json('Tournament Does Not Exist');
+      return;
+    }
+
+    res.status(200).json(result[0]);
   });
 });
 
