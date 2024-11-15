@@ -18,7 +18,6 @@ $(function() {
             playerID = parseInt(response.replace("Success,",""));
             localStorage.setItem("playerID", playerID);
           }
-          console.log(response);
       });
   });
 });

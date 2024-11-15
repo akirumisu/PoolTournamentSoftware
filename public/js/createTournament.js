@@ -5,40 +5,46 @@ $(function() {
     const data = {
       name: $('#create-tournament-name').val(),
       description: $('#create-tournament-description').val(),
-      /*
-      date: $('#date').val(),
-      location: $('#location').val(),
-      lowEloLimit: $('#lowEloLimit').val(),
-      highEloLimit: $('#highEloLimit').val(),
-      isRanked: $('#isRanked').val(),
-      greensFee: $('#greensFee').val(),
-      placesPaid: $('#placesPaid').val(),
-      addedMoney: $('#addedMoney').val(),
-      bracketSize: $('#bracketSize').val(),
-      isSeeded: $('#isSeeded').val(),
-      organizerID: 256,
-      gamemode: $('#gamemode').val(),
-      isActive: 1
-      */
-      date: '2012-12-12',
-      location: 2,
-      lowEloLimit: 50,
-      highEloLimit: 150,
-      isRanked: 0,
-      greensFee: 6,
-      placesPaid: 7,
-      addedMoney: 8,
-      bracketSize: 3,
-      isSeeded: 0,
-      organizerID: 11,
-      gamemode: 12,
+      
+      date: $('#create-tournament-date').val(),
+      location: $('#create-tournament-location').val(),
+      lowEloLimit: $('#create-tournament-lowEloLimit').val(),
+      highEloLimit: $('#create-tournament-highEloLimit').val(),
+      isRanked: $('#create-tournament-isRanked').prop('checked'),
+      greensFee: $('#create-tournament-greensFee').val(),
+      placesPaid: $('#create-tournament-placesPaid').val(),
+      addedMoney: $('#create-tournament-addedMoney').val(),
+      bracketSize: $('#create-tournament-bracketSize').val(),
+      isSeeded: $('#create-tournament-isSeeded').prop('checked'),
+      organizerID: localStorage.getItem("playerID"),
+      gamemode: $('#create-tournament-gamemode').val(),
       isActive: 0
+      
     };
-    console.log(data);
+
+    if (data.lowEloLimit == "") data.lowEloLimit = 0;
+    if (data.highEloLimit == "") data.highEloLimit = 9999;
+    if (data.greensFee == "") data.greensFee = 0;
+    if (data.placesPaid == "") data.placesPaid = 0;
+    if (data.addedMoney == "") data.addedMoney = 0;
+
+    data.isRanked = (data.isRanked) ? 1 : 0;
+    data.isSeeded = (data.isSeeded) ? 1 : 0;
+
+    if (data.organizerID == null) {
+      console.log("You must be logged in to create a tournament");
+      window.location.href = "login";
+    }
 
     $.post('/tournament/create', data, function(response) {
       // Handle response
-      console.log(response);
+      if (response.includes("Success")) {
+        tournamentID = response.replace("Success,","");
+        window.location.href = "tournament?id=" + tournamentID;
+      } else {
+        console.log("Failed to create tournament");
+        console.log(response);
+      }
     });
   });
 });

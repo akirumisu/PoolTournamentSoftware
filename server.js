@@ -199,8 +199,7 @@ app.post('/tournament/create', (req, res) => {
       res.status(500).json('Error');
       return;
     }
-
-    res.status(200).json('Success');
+    res.status(200).json('Success,' + result.insertId);
   });
 });
 
