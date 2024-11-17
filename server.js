@@ -235,6 +235,7 @@ app.post('/tournament/get-specific', (req, res) => {
 
   const data = [tournamentID];
   const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
+  const selectPlayersInTournamentSQL = "SELECT * FROM PlayersInTournament WHERE tournamentID = ?";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
@@ -248,7 +249,23 @@ app.post('/tournament/get-specific', (req, res) => {
       return;
     }
 
-    res.status(200).json(result[0]);
+    db.query(selectPlayersInTournamentSQL, data, (err2, result2) => {
+      if (err2) {
+        console.error("Error selecting tournament: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      if (result2.length === 0) {
+        res.status(404).json('Tournament Does Not Exist');
+        return;
+      }
+      
+      returnData = [result[0], result2];
+
+      res.status(200).json(returnData);
+    });
+
   });
 });
 
