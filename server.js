@@ -65,6 +65,7 @@ app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/public/html/login.html');
 });
 
+
 // Serve createaccount.html file
 app.get('/createaccount', (req, res) => {
   res.sendFile(__dirname + '/public/html/createaccount.html');

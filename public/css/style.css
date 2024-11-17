@@ -1,27 +1,33 @@
-body {
+  body {
     height: 100vh;
-    background: linear-gradient(to bottom, #ffffff, #555555);
-}
+    background: gray;
+    text-align:center;
+   
+} 
 
-.bordered-container {
+
+ .bordered-container {
     border: 1vw solid #aaaaaa;
     height: 100%;
     margin: 0;
     box-sizing: border-box;
     align-items: top;
-}
+    
+} 
+
+
 .header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header-right{
+    .header-right{
     display: flex;
     gap: 1rem;
     margin-left: auto;
-}
-.text-button {
+} 
+     .text-button {
     background: none;
     border: none;
     padding: 10;
@@ -38,7 +44,122 @@ body {
 }
 .paragraph {
     max-width: 25vw
-}
+} */
+
 .image {
     width: 10%; 
+} 
+
+
+*{
+    margin: 0;
+    padding: 0;
+} 
+
+.wrapper { 
+
+    margin: 0 auto;
+    width: 60%;
+    background: linear-gradient(to bottom, #ffffff, #555555);
+    z-index: 1; 
 }
+
+.wrapper2{
+    width: 90%;
+    margin: 0 auto;
+}
+header {
+width: 100%;
+height: 85px;
+background: white;
+position: fixed;
+z-index: 2;
+}
+
+
+.logo {
+    width: 30%;
+    float: left;
+    text-align: left;
+    line-height: 100px; 
+
+}
+.logo a{
+    font-size: 30px; 
+    font-weight: 600; 
+    text-decoration: none;
+    color: green;
+    letter-spacing: 4px;
+
+}
+nav{
+    float: right;
+    line-height: 100px;
+}
+nav a{
+    text-decoration: none;
+    font-size: 20px;
+    padding: 36px 10px;
+    margin: 0 1px;
+    font-weight: 500;
+    color: green;
+}
+
+nav a:hover{
+    background: green;
+    color: white;
+}
+
+.banner-area{
+ background-image: url(PoolSoftwareImages\AIPool.png);
+ background-size: cover;
+ background-position: center center;
+ top: 85px;
+ height: 100vh;
+ width: 100%;
+ position: fixed; 
+ 
+
+}
+.banner-area:after{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: lightgreen;
+    opacity: .7;
+    z-index: -1;
+}
+
+.banner-area h2{
+
+padding-top: 8%;
+font-size: 80px;
+color: white;
+
+}
+.content-area{
+    width: 100%;
+    height: 1000px;
+    position: relative;
+    background: gray;
+    top: 550px;
+}
+.content-area h2{
+font-size: 40px;
+margin: 0;
+padding-top: 30px;
+letter-spacing:4px;
+
+}
+.content-area p{
+    padding: 2% 0;
+    line-height: 30px;
+    text-align:justify;
+  
+}
+
+
