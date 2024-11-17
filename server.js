@@ -235,7 +235,7 @@ app.post('/tournament/get-specific', (req, res) => {
 
   const data = [tournamentID];
   const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
-  const selectPlayersInTournamentSQL = "SELECT * FROM PlayersInTournament WHERE tournamentID = ?";
+  const selectPlayersInTournamentSQL = "SELECT seed, a.playerID, name, elo, numMatches FROM dbMain.PlayersInTournament a LEFT JOIN dbMain.Players b ON a.playerID = b.playerID WHERE a.tournamentID=?";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
