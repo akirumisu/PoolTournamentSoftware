@@ -76,9 +76,14 @@ app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
 });
 
-// Serve tournament.html
-app.get('/tournament', (req, res) => {
-  res.sendFile(__dirname + '/public/html/tournament.html');
+// Serve searchtournament.html
+app.get('/tournament/search', (req, res) => {
+  res.sendFile(__dirname + '/public/html/searchtournament.html');
+});
+
+// Serve viewtournament.html
+app.get('/tournament/view', (req, res) => {
+  res.sendFile(__dirname + '/public/html/viewtournament.html');
 });
 
 /* Create Player Account */

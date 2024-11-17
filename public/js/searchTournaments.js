@@ -8,7 +8,7 @@ $(function() {
 			let column = $('<div class="col-lg-4"></div>');
 			// HTML allows us to add formatting. You can edit the 'tournament' class in css or add more classes
 			let itemHTML = '<div class="tournament">' +
-					'<a href="/tournament?id=' + t.tournamentID + '"> <h4>' + t.name + '</h4> </a>' +
+					'<a href="/tournament/view?id=' + t.tournamentID + '"> <h4>' + t.name + '</h4> </a>' +
 					'<p>' + t.description + '</p>' +
 					'<br>' +
 					'</div>';

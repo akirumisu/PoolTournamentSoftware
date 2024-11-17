@@ -2,8 +2,6 @@ $(function() {
   const params = new URLSearchParams(document.location.search);
   const id = params.get("id");
 
-  console.log("HELLOOOOOOOOOOOOO")
-
   const data = {
     tournamentID: id,
   };
@@ -14,12 +12,13 @@ $(function() {
     const description = response.description;
     const isActive = response.isActive;
 
-
     if (isActive === 0) { //tournament hasn't started yet
       $('#tournament-status').text("Not Started").css({
         'color': 'white',
         'background-color': 'green'
       });
+      // add register button if the user has not registered
+      // add withdraw button if the user has registered
     }
     if (isActive === 1) { //tournament is currently active
       $('#tournament-status').text("Ongoing").css({
