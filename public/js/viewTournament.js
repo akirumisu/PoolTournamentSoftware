@@ -1,4 +1,5 @@
 
+// Randomizes player array for random seeding
 function shufflePlayers(players) { // Fisher-Yates Shuffle
   for (let i = players.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i+1));
@@ -12,7 +13,7 @@ function seedPlayers(players, isSeeded) {
   if (!isSeeded) { // Random seeding
     players = shufflePlayers(players);
     for (let i = 1; i <= players.length; i++) { // Randomize, then assign seeds by array order
-      players.seed = i;
+      players[i-1].seed = i;
     }
   } else { // Seeding by Elo
     for (let player of players) { // If player has no elo, treat them as if they have an elo of 0
@@ -22,12 +23,13 @@ function seedPlayers(players, isSeeded) {
     }
     players.sort((a, b) => b.elo - a.elo); // Sort by elo in descending order.
     for (let i = 1; i <= players.length; i++) { // Assign seeds
-      players.seed = i;
+      players[i-1].seed = i;
     }
   }
   return players;
 }
 
+// Calculates bracket seeds, so we know where to place players
 function buildBracket(bracketSize, players) {
   // Determine nearest power of two (rounded up) that fits bracketSize. Then, calculate seeds for every bracket spot.
   let n = Math.ceil(Math.log2(bracketSize));
@@ -70,6 +72,36 @@ function buildBracket(bracketSize, players) {
   return bracketSpots;
 }
 
+function setWinner(allPlayerGridIds, winnerButtonId) {
+  let buttonParentId = winnerButtonId.replace("button","bracket");
+  let winnerGridIdIndex = -1;
+  let newGridId = -1;
+  let roundLevel = -1;
+  for (let i = 0; i < allPlayerGridIds.length; i++) {
+    winnerGridIdIndex = allPlayerGridIds[i].findIndex(id => id == buttonParentId);
+    if (winnerGridIdIndex != -1 && (i+1) < allPlayerGridIds.length) {
+      newGridId = allPlayerGridIds[i+1][Math.floor(winnerGridIdIndex/2)];
+      roundLevel = i;
+      break;
+    }
+  }
+  if (newGridId == -1) {
+    console.log("No space found for winner. Have they won the tournament?");
+    return;
+  }
+  let winnerDivContent = $(`#${buttonParentId}`).html();
+  let loserGridIdIndex = (winnerGridIdIndex % 2) ? winnerGridIdIndex-1 : winnerGridIdIndex+1;
+  let loserDivContent = $(`#${allPlayerGridIds[roundLevel][loserGridIdIndex]}`).html();
+  if (loserDivContent === "") {
+    console.log("Winner can't win unless they have a competitor!");
+    return;
+  }
+  let newButtonId = newGridId.replace("bracket","button");
+
+  let newDivContent = winnerDivContent.replace(winnerButtonId,newButtonId);
+  $(`#${newGridId}`).html(newDivContent);
+}
+
 
 $(function() {
   const params = new URLSearchParams(document.location.search);
@@ -80,7 +112,6 @@ $(function() {
   };
 
   $.post('/tournament/get-specific', data, function(response) {
-    console.log(response);
     playersInTournament = response[1];
     response = response[0];
     const bracketSize = response.bracketSize;
@@ -156,9 +187,82 @@ $(function() {
     $('#tournament-isSeeded').text(displayIsSeeded);
     $('#tournament-placesPaid').text(placesPaid);
 
-    seedPlayers(playersInTournament, isSeeded);
-    buildBracket(bracketSize, playersInTournament);
+    playersInTournament = seedPlayers(playersInTournament, isSeeded);
+    let bracketSpots = buildBracket(bracketSize, playersInTournament);
 
+    // Building empty html bracket
+    let n = Math.ceil(Math.log2(bracketSize));
+    let numColumns = n * 2 + 1;
+    let numRows = Math.pow(2,n) - 1;
+    const gridTemplate = `repeat(${numColumns}, 12em)`;
 
+    // Update bracket container to this tournament's bracketSize
+    $('#tournament-bracket').css('grid-template-columns', gridTemplate);
+    for (let row = 1; row <= numRows; row++) {
+      for (let col = 1; col <= numColumns; col++) {
+        const id = `bracket-${col}-${row}`;
+        const div = $('<div>').attr('id', id).addClass('tournament-bracket-empty-item').appendTo($('#tournament-bracket'));
+      }
+    }
+
+    // Multi-dimensional array that holds the ids of the <div> elements that hold player names. The first array is for the first round, second array for second round, and so on.
+    let allPlayerGridIds = [];
+
+    // Draw bracket
+    for (let col = 1; col <= n; col++) {
+
+      allPlayerGridIds.push([]);
+      let shift = Math.pow(2,col-1);
+      let modCheck = shift * 2;
+      
+      for (let row = 1; row <= numRows; row++) {
+        let check = (row+shift) % modCheck;
+        if (check == 0) { // Draw bracket
+          $(`#bracket-${col}-${row}`).removeClass('tournament-bracket-empty-item').addClass('tournament-bracket-item');
+          allPlayerGridIds[col-1].push(`bracket-${col}-${row}`);
+        } else if (check <= shift/2 || check >= (modCheck-shift/2)) { // Add connecting lines between players
+          $(`#bracket-${col}-${row}`).removeClass('tournament-bracket-empty-item').addClass('tournament-bracket-left-border-item');
+        }
+      }
+
+      for (let row = 1; row <= numRows; row++) {
+        let check = (row+shift) % modCheck;
+        if (check == 0) { // Draw bracket
+          $(`#bracket-${numColumns+1-col}-${row}`).removeClass('tournament-bracket-empty-item').addClass('tournament-bracket-item');
+          allPlayerGridIds[col-1].push(`bracket-${numColumns+1-col}-${row}`);
+        } else if (check <= shift/2 || check >= (modCheck-shift/2)) { // Add connecting lines between players
+          $(`#bracket-${numColumns+1-col}-${row}`).removeClass('tournament-bracket-empty-item').addClass('tournament-bracket-right-border-item');
+        }
+      }
+    } 
+    $(`#bracket-${Math.ceil(numColumns/2)}-${Math.ceil(numRows/2)}`).removeClass('tournament-bracket-empty-item').addClass('tournament-bracket-winner-item');
+    allPlayerGridIds.push([`bracket-${Math.ceil(numColumns/2)}-${Math.ceil(numRows/2)}`]);
+    // End drawing bracket
+    
+    
+    // Populate bracket
+    for (let i = 0; i < allPlayerGridIds[0].length; i++) {
+      let seed = bracketSpots[Math.floor(i/2)][i % 2];
+      let player = "Bye";
+      for (let plyr of playersInTournament) {
+        if (plyr.seed == seed) {
+          player = plyr.name;
+          if (player == "Bye") { // On the off-chance that someone is named Bye
+            player = "Bye (Player)";
+          }
+          break;
+        }
+      }
+      const gridId = allPlayerGridIds[0][i];
+      const buttonId = gridId.replace('bracket', 'button');
+      const gridContent = `<span>${seed} ${player} <button id="${buttonId}" class="tournament-bracket-win-button">Win</button>`;
+      $(`#${gridId}`).append(gridContent);
+    }
+
+    $('.tournament-bracket-container').on('click', '.tournament-bracket-win-button', function(event) {
+      newGridId = setWinner(allPlayerGridIds, event.target.id);
+    });
+    
   });
 });
+

@@ -193,7 +193,7 @@ letter-spacing:4px;
     overflow-x: auto; /* Allow horizontal scrolling */
     overflow-y: auto; /* Allow vertical scrolling */
     max-width: 100%; /* Take up full width of container */
-    max-height: 100vh; /* Maximum height set to viewport height */
+    max-height: 100%; /* Maximum height set to viewport height */
     padding: 10px;
 }
 
@@ -205,13 +205,47 @@ letter-spacing:4px;
     min-width: 12em;
 }
 
-.tournament-bracket-item {
+.tournament-bracket-left-border-item {
     justify-content: center;
     align-items: center;
-    border: 1px solid #ddd;
+    border-left: 2px solid #000;
     text-align: left;
     min-height: 3em;
     min-width: 12em;
+}
+
+.tournament-bracket-right-border-item {
+    justify-content: center;
+    align-items: center;
+    border-right: 2px solid #000;
+    text-align: left;
+    min-height: 3em;
+    min-width: 12em;
+}
+
+.tournament-bracket-item {
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000;
+    text-align: left;
+    min-height: 3em;
+    min-width: 12em;
+}
+
+.tournament-bracket-winner-item {
+    justify-content: center;
+    align-items: center;
+    border: 4px solid #dd5;
+    text-align: left;
+    min-height: 3em;
+    min-width: 12em;
+}
+
+.tournament-bracket-win-button {
+    float: right;
+    background-color: #5a5;
+    padding: 1%;
+    cursor: pointer;
 }
 
 
