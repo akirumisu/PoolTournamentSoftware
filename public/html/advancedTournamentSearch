@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Login</title>
+    <title>advancedTournamentSearch</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,34 +29,29 @@
             </div>
         </header>
         <div class="banner-area">
-            <h2>Login</h2>
+            <h2>Tournament Search</h2>
         </div>
 
 
         <div class="content-area">
             <div class="wrapper">
-                <h1>Login</h1>
-                <form action="login.js" method="post">
-                    <div class="leftmiddle-alignment">
-                        <div>
-                            <input type="email" id="login-email" placeholder="name" name="username">
-                            <label for="login-email">Email</label>
-                        </div>
-
-                        <div>
-                            <input type="password" id="login-password" placeholder="Password" name="password">
-                            <label for="login-password">Password</label>
-                        </div>
-                    </div>
-
+                <h1>Tournament Search</h1>
+                <div style="text-align: left;">
+                    <label>Search Tournaments</label>
                     <div>
-                        <label>
-                            <input type="checkbox" value="remember-me"> Remember Me
-                        </label>
+                        <form action="searchTournament.js" method="post">
+                            <input type="tournament" id="tournament" placeholder="tournament name" name="tournament">
+                            <input type="location" id="location" placeholder="location" name="location">
+                            <input type="buyInMax" id="buyInMax" placeholder="buy in max" name="buyInMax">
+                            <input type="buyInMin" id="buyInMin" placeholder="buy in min" name="buyInMin">
+                            <input type="maxPlayers" id="maxPlayers" placeholder="maximum number of players" name="maxPlayers">
+                            <input type="minPlayers" id="minThanPlayers" placeholder="minimum number of players" name="minPlayers">
+                            <input type="EloMax" id="EloMax" placeholder="max elo" name="EloMax">
+                            <input type="EloMin" id="EloMin" placeholder="Min elo" name="EloMin">
+                            <button class="buttons" type="submit">Search</button>
+                        </form>
                     </div>
-
-                    <button type="submit">Log In</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
