@@ -189,13 +189,29 @@ letter-spacing:4px;
 
 .tournament-bracket-container {
     display: grid;
-    grid-template-columns: repeat(20, 150px); /* 20 columns with each column 150px wide */
-    gap: 10px; /* Space between grid items */
+    grid-template-columns: repeat(15, 12em); /* 20 columns with each column 150px wide */
     overflow-x: auto; /* Allow horizontal scrolling */
     overflow-y: auto; /* Allow vertical scrolling */
     max-width: 100%; /* Take up full width of container */
     max-height: 100vh; /* Maximum height set to viewport height */
     padding: 10px;
+}
+
+.tournament-bracket-empty-item {
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    min-height: 3em;
+    min-width: 12em;
+}
+
+.tournament-bracket-item {
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+    text-align: left;
+    min-height: 3em;
+    min-width: 12em;
 }
 
 
