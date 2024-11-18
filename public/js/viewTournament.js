@@ -72,7 +72,7 @@ function buildBracket(bracketSize, players) {
   return bracketSpots;
 }
 
-function setWinner(allPlayerGridIds, winnerButtonId) {
+function setWinner(allPlayerGridIds, winnerButtonId, isByeWin) {
   let buttonParentId = winnerButtonId.replace("button","bracket");
   let winnerGridIdIndex = -1;
   let newGridId = -1;
@@ -100,6 +100,9 @@ function setWinner(allPlayerGridIds, winnerButtonId) {
 
   let newDivContent = winnerDivContent.replace(winnerButtonId,newButtonId);
   $(`#${newGridId}`).html(newDivContent);
+
+  
+
 }
 
 function updateByeWins(allPlayerGridIds) {
@@ -122,7 +125,7 @@ function updateByeWins(allPlayerGridIds) {
         let winnerButtonId = playerOneDivContent.match(buttonIdRegex);
         if (winnerButtonId.length > 0) {
           winnerButtonId = winnerButtonId[0];
-          setWinner(allPlayerGridIds, winnerButtonId);
+          setWinner(allPlayerGridIds, winnerButtonId, true);
         }
       }
     }
@@ -287,7 +290,7 @@ $(function() {
     }
 
     $('.tournament-bracket-container').on('click', '.tournament-bracket-win-button', function(event) {
-      newGridId = setWinner(allPlayerGridIds, event.target.id);
+      newGridId = setWinner(allPlayerGridIds, event.target.id, false);
     });
     if (isActive) {
       updateByeWins(allPlayerGridIds);
