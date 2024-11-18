@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Login</title>
+    <title>advancedPlayerSearch</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,34 +29,27 @@
             </div>
         </header>
         <div class="banner-area">
-            <h2>Login</h2>
+            <h2>Player Search</h2>
         </div>
 
 
         <div class="content-area">
             <div class="wrapper">
-                <h1>Login</h1>
-                <form action="login.js" method="post">
-                    <div class="leftmiddle-alignment">
-                        <div>
-                            <input type="email" id="login-email" placeholder="name" name="username">
-                            <label for="login-email">Email</label>
-                        </div>
-
-                        <div>
-                            <input type="password" id="login-password" placeholder="Password" name="password">
-                            <label for="login-password">Password</label>
-                        </div>
-                    </div>
-
+                <h1>Player Search</h1>
+                <div style="text-align: left;">
+                    <label>Search Player</label>
                     <div>
-                        <label>
-                            <input type="checkbox" value="remember-me"> Remember Me
-                        </label>
+                        <form action="searchPlayer.js" method="post">
+                            <input type="name" id="name" placeholder="Player name" name="name">
+                            <input type="location" id="location" placeholder="location" name="location">
+                            <input type="tournamentsPlayedMax" id="tournamentsPlayedMax" placeholder="max number of tournaments played in" name="tournamentsPlayedMax">
+                            <input type="tournamentsPlayedMin" id="tournamentsPlayedMin" placeholder="min number of tournaments played in" name="tournamentsPlayedMin">
+                            <input type="EloMax" id="EloMax" placeholder="max elo" name="EloMax">
+                            <input type="EloMin" id="EloMin" placeholder="Min elo" name="EloMin">
+                            <button class="buttons" type="submit">Search</button>
+                        </form>
                     </div>
-
-                    <button type="submit">Log In</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
