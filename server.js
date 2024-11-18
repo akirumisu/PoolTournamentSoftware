@@ -65,10 +65,19 @@ app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/public/html/login.html');
 });
 
-
 // Serve createaccount.html file
 app.get('/createaccount', (req, res) => {
   res.sendFile(__dirname + '/public/html/createaccount.html');
+});
+
+// Serve advancedPlayerSearch.html
+app.get('/advancedPlayerSearch', (req, res) => {
+  res.sendFile(__dirname + '/public/html/advancedPlayerSearch.html');
+});
+
+// Serve advancedTournamentSearch.html
+app.get('/advancedTournamentSearch', (req, res) => {
+  res.sendFile(__dirname + '/public/html/advancedTournamentSearch.html');
 });
 
 // Serve dev.html (developer testing page)
@@ -79,11 +88,6 @@ app.get('/dev', (req, res) => {
 // Serve searchtournament.html
 app.get('/tournament/search', (req, res) => {
   res.sendFile(__dirname + '/public/html/searchtournament.html');
-});
-
-// Serve viewtournament.html
-app.get('/tournament/view', (req, res) => {
-  res.sendFile(__dirname + '/public/html/viewtournament.html');
 });
 
 /* Create Player Account */

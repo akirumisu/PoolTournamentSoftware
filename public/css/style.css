@@ -19,7 +19,8 @@
   .buttons {
       border-radius: 50px;
       background-color: #555555;
-      color: white
+      color: white;
+      padding: 3px;
   }
 
   .header-container {

@@ -36,26 +36,27 @@
         <div class="content-area">
             <div class="wrapper">
                 <h1>Home</h1>
-                    <div class="leftmiddle-alignment">
-                        <label>Search Tournaments</label>
-                        <div>
-                            <form action="searchTournament.js" method="post">
+                <div class="leftmiddle-alignment">
+                    <label>Search Tournaments</label>
+                    <div>
+                        <form action="searchTournaments.js" method="post">
                             <input type="tournament" id="tournament" placeholder="tournament name" name="tournament">
                             <button class="buttons" type="submit">go</button>
-                            <button class="buttons" onclick="window.location.href='advancedTournamentSearch'">Advanced</button>
                         </form>
-
-                        </div>
-
-                        <label>Search Players</label>
-                        <div>
-                            <form action="searchPlayers.js" method="post">
-                            <input type="playerSearch" id="name" placeholder="player name" name="name">
-                            <button class="buttons" type="submit">go</button>
-                            <button class="buttons" onclick="window.location.href='advancedPlayerSearch'">Advanced</button>
-                        </form>
-                        </div>
+                        <button class="buttons"
+                            onclick="window.location.href='advancedTournamentSearch'">Advanced</button>
                     </div>
+                    <div class="row" id="tournament-view-row"></div>
+
+                    <label>Search Players</label>
+                    <div>
+                        <form action="searchPlayers.js" method="post">
+                            <input type="name" id="name" placeholder="player name" name="name">
+                            <button class="buttons" type="submit">go</button>
+                        </form>
+                        <button class="buttons" onclick="window.location.href='advancedPlayerSearch'">Advanced</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
