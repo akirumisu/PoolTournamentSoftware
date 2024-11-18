@@ -1,6 +1,6 @@
   body {
       height: 100vh;
-      background: gray;
+      background: linear-gradient(0, gray);
       text-align: center;
 
   }
