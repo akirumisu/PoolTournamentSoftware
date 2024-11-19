@@ -68,9 +68,9 @@
   }
 
   .wrapper {
-
       margin: 0 auto;
-      width: 60%;
+      padding: 20px;
+      width: 80%;
       background: linear-gradient(to bottom, #ffffff, #555555);
       z-index: 1;
       align-items: left;
@@ -283,4 +283,22 @@
       background-color: #5a5;
       padding: 1%;
       cursor: pointer;
+  }
+
+  input {
+    padding: 1px;
+    margin: 1px;
+  }
+
+  .card {
+    background-color: lightgreen;
+  }
+
+  .card-title {
+    color: black;
+  }
+
+  .list-group-item {
+    text-align: left;
+    background-color: palegreen;
   }
