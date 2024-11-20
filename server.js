@@ -218,21 +218,6 @@ app.post('/tournament/create', (req, res) => {
   });
 });
 
-/* Get All Tournaments */
-app.get('/tournament/get-all', (req, res) => {
-  const selectTournamentSQL = "SELECT * FROM Tournaments";
-
-  db.query(selectTournamentSQL, (err, result) => {
-    if (err) {
-      console.error("Error getting tournaments: ", err);
-      res.status(500).json('Error');
-      return;
-    }
-
-    res.status(200).json(result);
-  });
-});
-
 /* Get Specific Tournament */
 app.post('/tournament/get-specific', (req, res) => {
   const tournamentID = req.body.tournamentID;

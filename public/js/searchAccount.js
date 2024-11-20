@@ -73,11 +73,11 @@ $(function() {
           column.hide();
           $('#player-view-row').append(column);
           if (index % 3 === 2) {
-            column.slideDown(200, 'linear', function() {
+            column.slideDown(100, 'linear', function() {
               displayPlayer(index + 1);
             });
           } else {
-            column.slideDown(200, 'linear');
+            column.slideDown(100, 'linear');
             displayPlayer(index + 1);
           }
         }
