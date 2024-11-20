@@ -17,7 +17,7 @@
 }
 
   .buttons {
-      border-radius: 50px;
+      /* border-radius: 50px; */
       background-color: #555555;
       color: white;
       padding: 3px;
@@ -133,7 +133,7 @@
   }
 
   .banner-area {
-      background-image: url(PoolSoftwareImages\AIPool.png);
+      background-image: url(AIPool.png);
       background-size: cover;
       background-position: center center;
       top: 75px;
