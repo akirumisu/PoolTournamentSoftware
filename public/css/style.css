@@ -7,14 +7,14 @@
 
 
   .bordered-container {
-      border: .5vw solid #aaaaaa;
-      padding: .5vw;
-      min-height: 100vh;
-      margin: 0;
-      box-sizing: border-box;
-      align-items: top;
+    border: .5vw solid #020202;
+    padding: .5vw;
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+    align-items: top;
 
-  }
+}
 
   .buttons {
       border-radius: 50px;
@@ -68,13 +68,14 @@
   }
 
   .wrapper {
-      margin: 0 auto;
-      padding: 20px;
-      width: 80%;
-      background: linear-gradient(to bottom, #ffffff, #555555);
-      z-index: 1;
-      align-items: left;
-  }
+    margin: 0 auto;
+    padding: 20px;
+    width: 70%;
+    background: white;
+    z-index: 1;
+    align-items: left;
+    min-height: 1000px;
+}
 
   .leftmiddle-alignment {
       text-align: left;
@@ -120,7 +121,7 @@
   nav a {
       text-decoration: none;
       font-size: 20px;
-      padding: 36px 10px;
+      padding: 15px 10px;
       margin: 0 1px;
       font-weight: 500;
       color: green;
@@ -165,12 +166,13 @@
   }
 
   .content-area {
-      width: 100%;
-      height: auto;
-      position: relative;
-      background: gray;
-      top: 550px;
-  }
+    width: 100%;
+    height: flex;
+    position: relative;
+    background: rgb(41, 40, 40);
+    top: 450px;
+    
+}
 
   .content-area h2 {
       font-size: 40px;
