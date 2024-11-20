@@ -80,6 +80,11 @@ app.get('/advancedTournamentSearch', (req, res) => {
   res.sendFile(__dirname + '/public/html/advancedTournamentSearch.html');
 });
 
+// Serve viewtournament.html
+app.get('/tournament/view', (req, res) => {
+  res.sendFile(__dirname + '/public/html/viewtournament.html');
+});
+
 // Serve dev.html (developer testing page)
 app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
@@ -89,6 +94,20 @@ app.get('/dev', (req, res) => {
 app.get('/tournament/search', (req, res) => {
   res.sendFile(__dirname + '/public/html/searchtournament.html');
 });
+
+function setDefaultNum(num, defaultNum) {
+  if (isNaN(num) || num == null) {
+    return defaultNum;
+  }
+  return num;
+}
+
+function setDefaultString(str, defaultStr) {
+  if (str == null) {
+    return defaultStr;
+  }
+  return str;
+}
 
 /* Create Player Account */
 app.post('/account/create', (req, res) => {
@@ -219,16 +238,19 @@ app.post('/tournament/create', (req, res) => {
 });
 
 /* Get All Tournaments */
-app.get('/tournament/get-all', (req, res) => {
-  const selectTournamentSQL = "SELECT * FROM Tournaments";
+app.post('/tournament/search', (req, res) => {
+  console.log(req.body.name);
+  const data = ['%'+req.body.name+'%']
+  data.name = setDefaultString(data.name, "");
+  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE name LIKE ?";
 
-  db.query(selectTournamentSQL, (err, result) => {
+  db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
       console.error("Error getting tournaments: ", err);
       res.status(500).json('Error');
       return;
     }
-
+    console.log(result);
     res.status(200).json(result);
   });
 });
@@ -240,10 +262,11 @@ app.post('/tournament/get-specific', (req, res) => {
   const data = [tournamentID];
   const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
   const selectPlayersInTournamentSQL = "SELECT seed, a.playerID, name, elo, numMatches FROM dbMain.PlayersInTournament a LEFT JOIN dbMain.Players b ON a.playerID = b.playerID WHERE a.tournamentID=?";
+  const selectMatchesSQL = "SELECT playerOneID, playerTwoID, winnerID, numRound FROM Matches WHERE tournamentID = ?";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
-      console.error("Error selecting tournament: ", err);
+      console.error("Error selecting tournament details: ", err);
       res.status(500).json('Error');
       return;
     }
@@ -255,37 +278,120 @@ app.post('/tournament/get-specific', (req, res) => {
 
     db.query(selectPlayersInTournamentSQL, data, (err2, result2) => {
       if (err2) {
-        console.error("Error selecting tournament: ", err2);
+        console.error("Error selecting tournament players: ", err2);
         res.status(500).json('Error');
         return;
       }
-  
-      if (result2.length === 0) {
-        res.status(404).json('Tournament Does Not Exist');
-        return;
-      }
-      
-      returnData = [result[0], result2];
 
-      res.status(200).json(returnData);
+      db.query(selectMatchesSQL, data, (err3, result3) => {
+        if (err3) {
+          console.error("Error selecting tournament matches: ", err3);
+          res.status(500).json('Error');
+          return;
+        }
+        returnData = [result[0], result2, result3];
+
+        res.status(200).json(returnData);
+      });
     });
 
   });
 });
 
+/* Mark match win in db */
+app.post('/tournament/mark-win', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const playerOneID = req.body.playerOneID;
+  const playerTwoID = req.body.playerTwoID;
+  const winnerID = req.body.winnerID;
+  const numRound = req.body.numRound;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.password;
+  const data = [tournamentID, playerOneID, playerTwoID, winnerID, numRound];
+  const credentialData = [tournamentID, organizerID, orgPassword];
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+
+  db.query(credentialSQL, credentialData, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during mark-win: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    // If we got here, then credentials are good, and the person making the request is the correct organizer for this tournament
+    const insertMatch = "INSERT INTO Matches (tournamentID, playerOneID, playerTwoID, winnerID, numRound) VALUES (?,?,?,?,?)";
+
+    db.query(insertMatch, data, (err2, result2) => {
+      if (err2) {
+        console.error("Error inserting new match win", err2);
+        res.status(500).json("Error");
+        return;
+      }
+
+      res.status(200).json("Success");
+      return;
+    });
+  });
+
+});
+
+app.post('/tournament/update-seeds', (req, res) => {
+  const credentials = req.body.credentials;
+  const tournamentID = req.body.tournamentID;
+  const playersInTournament = req.body.playersInTournament;
+
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialData = [credentials.tournamentID, credentials.organizerID, credentials.password];
+
+  db.query(credentialSQL, credentialData, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during mark-win: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    // If we got here, then credentials are good, and the person making the request is the correct organizer for this tournament
+    const updateSeedSQL = "UPDATE PlayersInTournament SET seed = ? WHERE tournamentID = ? and playerID = ?";
+    for (let player of playersInTournament) {
+      db.query(updateSeedSQL, [player.seed, credentials.tournamentID, player.playerID], (err2, result2) => {
+        if (err2) {
+          console.error("Error while updating player seeds", err2);
+          return;
+        }
+      });
+    }
+  });
+  
+})
+
 /* Register For Tournament */
 app.post('/tournament/register', (req, res) => {
   const tournamentID = req.body.tournamentID;
   const playerID = req.body.playerID;
+  const playerPassword = req.body.playerPassword;
 
-  const data = [tournamentID, playerID];
-
+  const data = [tournamentID, playerID, playerPassword];
   var playerElo; // The registering player's elo
   var tournamentSpots; // Number of spots in the tournament
+  console.log(data);
 
   // Check if the player exists and save their elo
-  const checkPlayerDetails = "SELECT * FROM Players WHERE PlayerID = ?";
-  db.query(checkPlayerDetails, playerID, (err, result) => {
+  const checkPlayerDetails = "SELECT * FROM Players WHERE PlayerID = ? and password = ?";
+  db.query(checkPlayerDetails, [playerID, playerPassword], (err, result) => {
     if (err) {
       console.error("Error getting Players: ", err);
       res.status(500).json('Player Error');
@@ -293,10 +399,9 @@ app.post('/tournament/register', (req, res) => {
     }
 
     if (result.length === 0) {
-      res.status(200).json('Player Does Not Exist');
+      res.status(200).json('Incorrect credentials');
       return;
     }
-
     // Player exists! Get elo
     playerElo = result[0].elo;
 
@@ -334,7 +439,7 @@ app.post('/tournament/register', (req, res) => {
       
       // Check how many players are in the tournament
       const checkPlayersInTournament = "SELECT playerID FROM PlayersInTournament WHERE tournamentID = ?";
-      db.query (checkPlayersInTournament, data, (err, result) => {
+      db.query (checkPlayersInTournament, tournamentID, (err, result) => {
         if (err) {
           console.error("Error getting PlayersInTournament: ", err);
           res.status(500).json('PlayersInTournament Error');
@@ -345,10 +450,9 @@ app.post('/tournament/register', (req, res) => {
           res.status(200).json('Tournament Full');
           return;
         }
-
         // Check the PlayersInTournament table for duplicates
         const checkDuplicateEntry = "SELECT * FROM PlayersInTournament WHERE tournamentID = ? AND playerID = ?";
-        db.query (checkDuplicateEntry, data, (err, result) => {
+        db.query (checkDuplicateEntry, [tournamentID, playerID], (err, result) => {
           if (err) {
             console.error("Error getting PlayersInTournament: ", err);
             res.status(500).json('PlayersInTournament Error');
@@ -362,13 +466,12 @@ app.post('/tournament/register', (req, res) => {
       
           // Finally, add the player into the tournament
           const registerTournamentSQL = "INSERT INTO PlayersInTournament (tournamentID, playerID, seed) VALUES (?, ?, null)";
-          db.query(registerTournamentSQL, data, (err, result) => {
+          db.query(registerTournamentSQL, [tournamentID, playerID], (err, result) => {
             if (err) {
               console.error("Error getting PlayersInTournament: ", err);
               res.status(500).json('PlayersInTournament Error');
               return;
             }
-        
             res.status(200).json('Success');
           });
         });
@@ -416,11 +519,16 @@ app.post('/tournament/delete', (req, res) => {
 
 /* Get Player ELO */
 app.post('/account/get', (req, res) => {
-  const name = req.body.name;
-  const lowElo = parseInt(req.body.lowElo);
-  const highElo = parseInt(req.body.highElo);
-  const lowNumMatches = parseInt(req.body.lowNumMatches);
-  const highNumMatches = parseInt(req.body.highNumMatches);
+  let name = req.body.name;
+  name = setDefaultString(name, "");
+  let lowElo = parseInt(req.body.lowElo);
+  lowElo = setDefaultNum(lowElo, 0);
+  let highElo = parseInt(req.body.highElo);
+  highElo = setDefaultNum(highElo, 9999);
+  let lowNumMatches = parseInt(req.body.lowNumMatches);
+  lowNumMatches = setDefaultNum(lowNumMatches, 0);
+  let highNumMatches = parseInt(req.body.highNumMatches);
+  highNumMatches = setDefaultNum(highNumMatches, 9999);
 
   const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
   const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
@@ -433,7 +541,7 @@ app.post('/account/get', (req, res) => {
       res.status(500).json('Error');
       return;
     }
-    console.log(result);
+    //console.log(result);
 
     if (result.length === 0) {
       res.status(404).json('No Matching Players');

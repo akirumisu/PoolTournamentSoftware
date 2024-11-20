@@ -72,7 +72,7 @@ function buildBracket(bracketSize, players) {
   return bracketSpots;
 }
 
-function setWinner(allPlayerGridIds, winnerButtonId, isByeWin) {
+function setWinner(credentials, playersInTournament, allPlayerGridIds, completedMatches, winnerButtonId, isByeWin = false) {
   let buttonParentId = winnerButtonId.replace("button","bracket");
   let winnerGridIdIndex = -1;
   let newGridId = -1;
@@ -100,12 +100,41 @@ function setWinner(allPlayerGridIds, winnerButtonId, isByeWin) {
 
   let newDivContent = winnerDivContent.replace(winnerButtonId,newButtonId);
   $(`#${newGridId}`).html(newDivContent);
+  let winner = new Object;
+  if (isByeWin < 3) { // isByeWin represents which player was a bye. Less than 3 means atleast one player is real, and we already have the winner, so they are guaranteed to be real
+    winner = playersInTournament.find(player => player.gridId == allPlayerGridIds[roundLevel][winnerGridIdIndex])
+    winner.gridId = newGridId;
+  }
 
-  
+  // Win is now shown locally. Update db to hold win
+  if (!isByeWin) { // isByeWin is only ever false when there are no byes at all or when advancing a match that has already been uploaded to db
+    
+    let loser = playersInTournament.find(player => player.gridId == allPlayerGridIds[roundLevel][loserGridIdIndex])
+    const data = {
+      tournamentID: credentials.tournamentID,
+      playerOneID: winner.playerID,
+      playerTwoID: loser.playerID,
+      winnerID: winner.playerID,
+      numRound: roundLevel,
+      organizerID: credentials.organizerID,
+      password: credentials.password
+    };
+
+    $.post('/tournament/mark-win', data, function(response) {
+      data = {
+        tournamentID: data.tournamentID,
+        playerOneID: data.playerOneID,
+        playerTwoID: data.playerTwoID,
+        winnerID: data.winnerID,
+        numRound: data.numRound
+      }
+      completedMatches.push(data);
+    });
+  }
 
 }
 
-function updateByeWins(allPlayerGridIds) {
+function updateByeWins(playersInTournament, allPlayerGridIds) {
   for (let i = 0; i < allPlayerGridIds.length - 1; i++) {
     for (let j = 0; j < allPlayerGridIds[i].length; j=j+2) {
       playerOneGridId = allPlayerGridIds[i][j];
@@ -114,24 +143,68 @@ function updateByeWins(allPlayerGridIds) {
       let playerTwoDivContent = $(`#${playerTwoGridId}`).html();
       buttonIdRegex = /button-\d+-\d+/;
 
-      if (playerOneDivContent.includes(" Bye <button")) {
-        let winnerButtonId = playerTwoDivContent.match(buttonIdRegex);
-        if (winnerButtonId.length > 0) {
-          winnerButtonId = winnerButtonId[0];
-          setWinner(allPlayerGridIds, winnerButtonId);
+      if (playerOneDivContent.includes(" Bye <button")) { // P1 is Bye
+
+        if (playerTwoDivContent.includes(" Bye <button")) { // Both P1 and P2 are Byes, let P1 advance
+          let winnerButtonId = playerOneDivContent.match(buttonIdRegex);
+          if (winnerButtonId.length > 0) {
+            winnerButtonId = winnerButtonId[0];
+            setWinner(-1, playersInTournament, allPlayerGridIds, [], winnerButtonId, 3);
+          }
+        
+        } else { // P2 is real, P1 is Bye. Advance P2
+          let winnerButtonId = playerTwoDivContent.match(buttonIdRegex);
+          if (winnerButtonId.length > 0) {
+            winnerButtonId = winnerButtonId[0];
+            setWinner(-1, playersInTournament, allPlayerGridIds, [], winnerButtonId, 1);
+          }
         }
         
-      } else if (playerTwoDivContent.includes(" Bye <button")) {
+      } else if (playerTwoDivContent.includes(" Bye <button")) { // P1 is real, P2 is a Bye. Advance P1
         let winnerButtonId = playerOneDivContent.match(buttonIdRegex);
         if (winnerButtonId.length > 0) {
           winnerButtonId = winnerButtonId[0];
-          setWinner(allPlayerGridIds, winnerButtonId, true);
+          setWinner(-1, playersInTournament, allPlayerGridIds, [], winnerButtonId, 2);
         }
       }
     }
   }
 }
 
+function advanceCompletedMatches(playersInTournament, allPlayerGridIds, completedMatches) {
+
+  const sortedMatches = completedMatches.sort((match1, match2) => match1.numRound - match2.numRound);
+  for (let match of sortedMatches) {
+    winner = playersInTournament.find(player => player.playerID == match.winnerID);
+    winnerGridId = winner.gridId;
+    winnerButtonId = winnerGridId.replace("bracket","button");
+    setWinner([], playersInTournament, allPlayerGridIds, completedMatches, winnerButtonId, false);
+  }
+  
+}
+
+function findPlayerSeed(divContent) {
+  const match = divContent.match(/^<span>(\d+)/);
+
+  if (match) {
+      const seed = parseInt(match[1]);
+      return seed;
+  } else {
+      console.log("No seed found in " + divContent);
+      return -1;
+  }
+}
+
+function updateSeeds(credentials, playersInTournament) {
+
+  const data = {
+    credentials: credentials,
+    playersInTournament: playersInTournament
+  }
+  $.post('/tournament/update-seeds', data, function(response) {
+
+  });
+}
 
 $(function() {
   const params = new URLSearchParams(document.location.search);
@@ -141,8 +214,18 @@ $(function() {
     tournamentID: id,
   };
 
+  organizerID = localStorage.getItem('playerID');
+  if (organizerID == null) organizerID = -1;
+  password = localStorage.getItem('password');
+  let credentials = {
+    tournamentID: data.tournamentID,
+    organizerID: organizerID,
+    password: password
+  }
+
   $.post('/tournament/get-specific', data, function(response) {
     playersInTournament = response[1];
+    completedMatches = response[2];
     response = response[0];
     const bracketSize = response.bracketSize;
     const name = response.name;
@@ -161,7 +244,7 @@ $(function() {
       second: 'numeric',
       timeZoneName: 'short'
     });
-    const location = response.location;
+    const tournamentLocation = response.location;
     const gamemode = response.gamemode;
     const buyIn = (response.buyIn == null) ? "Free!" : response.buyIn.toFixed(2); // If null, set to zero.
     const greensFee = response.greensFee.toFixed(2);
@@ -211,13 +294,17 @@ $(function() {
     $('#tournament-description').text(description);
     $('#tournament-gamemode').text(gamemode);
     $('#tournament-date').text(displayDate);
-    $('#tournament-location').text(location);
+    $('#tournament-location').text(tournamentLocation);
     $('#tournament-fees').html('Buy In: ' + buyIn + '<br>Greens Fee: ' + greensFee);
     $('#tournament-eloLimits').html(displayEloLimit);
     $('#tournament-isSeeded').text(displayIsSeeded);
     $('#tournament-placesPaid').text(placesPaid);
 
-    playersInTournament = seedPlayers(playersInTournament, isSeeded);
+    if (playersInTournament.some(player => player.seed == null || player.seed < 1)) { // Only seed if it hasn't been done already
+      console.log("Seeding players...");
+      playersInTournament = seedPlayers(playersInTournament, isSeeded);
+      updateSeeds(credentials, playersInTournament);
+    }
     let bracketSpots = buildBracket(bracketSize, playersInTournament);
 
     // Building empty html bracket
@@ -273,27 +360,43 @@ $(function() {
     // Populate bracket
     for (let i = 0; i < allPlayerGridIds[0].length; i++) {
       let seed = bracketSpots[Math.floor(i/2)][i % 2];
-      let player = "Bye";
+      let player = new Object;
+      player.name = "Bye"; // Set default name to Bye, for empty places
       for (let plyr of playersInTournament) {
         if (plyr.seed == seed) {
-          player = plyr.name;
-          if (player == "Bye") { // On the off-chance that someone is named Bye
-            player = "Bye (Player)";
+          player = plyr;
+          if (player.name == "Bye") { // On the off-chance that someone is actually named Bye
+            player.name = "Bye (Player)";
           }
           break;
         }
       }
       const gridId = allPlayerGridIds[0][i];
       const buttonId = gridId.replace('bracket', 'button');
-      const gridContent = `<span>${seed} ${player} <button id="${buttonId}" class="tournament-bracket-win-button">Win</button>`;
+      const gridContent = `<span>${seed} ${player.name} <button id="${buttonId}" class="tournament-bracket-win-button">Win</button>`;
       $(`#${gridId}`).append(gridContent);
+      player.gridId = gridId;
     }
 
     $('.tournament-bracket-container').on('click', '.tournament-bracket-win-button', function(event) {
-      newGridId = setWinner(allPlayerGridIds, event.target.id, false);
+      newGridId = setWinner(credentials, playersInTournament, allPlayerGridIds, completedMatches, event.target.id, false);
     });
     if (isActive) {
-      updateByeWins(allPlayerGridIds);
+      updateByeWins(playersInTournament, allPlayerGridIds);
+      advanceCompletedMatches(playersInTournament, allPlayerGridIds, completedMatches);
+    }
+    if (isActive == 0) {
+      $('#tournament-register-button').removeClass("hidden");
+      $('#tournament-register-button').on('click', function(event) {
+        let data = {
+          tournamentID: credentials.tournamentID,
+          playerID: credentials.organizerID,
+          playerPassword: credentials.password
+        }
+        $.post('/tournament/register', data, function(response) {
+          location.reload();
+        });
+      });
     }
     
   });
