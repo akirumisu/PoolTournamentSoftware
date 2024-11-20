@@ -70,19 +70,19 @@ app.get('/createaccount', (req, res) => {
   res.sendFile(__dirname + '/public/html/createaccount.html');
 });
 
-// Serve advancedPlayerSearch.html
-app.get('/advancedPlayerSearch', (req, res) => {
-  res.sendFile(__dirname + '/public/html/advancedPlayerSearch.html');
+// Serve searchTournament.html
+app.get('/tournament/search', (req, res) => {
+  res.sendFile(__dirname + '/public/html/searchTournament.html');
 });
 
-// Serve advancedTournamentSearch.html
-app.get('/advancedTournamentSearch', (req, res) => {
-  res.sendFile(__dirname + '/public/html/advancedTournamentSearch.html');
+// Serve searchAccount.html
+app.get('/account/search', (req, res) => {
+  res.sendFile(__dirname + '/public/html/searchAccount.html');
 });
 
-// Serve viewtournament.html
+// Serve viewTournament.html
 app.get('/tournament/view', (req, res) => {
-  res.sendFile(__dirname + '/public/html/viewtournament.html');
+  res.sendFile(__dirname + '/public/html/viewTournament.html');
 });
 
 // Serve dev.html (developer testing page)
@@ -90,10 +90,6 @@ app.get('/dev', (req, res) => {
   res.sendFile(__dirname + '/public/html/dev.html');
 });
 
-// Serve searchtournament.html
-app.get('/tournament/search', (req, res) => {
-  res.sendFile(__dirname + '/public/html/searchtournament.html');
-});
 
 function setDefaultNum(num, defaultNum) {
   if (isNaN(num) || num == null) {
@@ -480,6 +476,41 @@ app.post('/tournament/register', (req, res) => {
   });
 });
 
+app.post('/tournament/get', (req, res) => {
+  const name = req.body.name;
+  const lowEloLimit = req.body.lowEloLimit;
+  const highEloLimit = req.body.highEloLimit;
+  const minIsRanked = req.body.minIsRanked;
+  const maxIsRanked = req.body.maxIsRanked;
+  const minGreensFee = req.body.minGreensFee;
+  const maxGreensFee = req.body.maxGreensFee;
+  const minBracketSize = req.body.minBracketSize;
+  const maxBracketSize = req.body.maxBracketSize;
+  const gamemode = req.body.gamemode;
+  const minIsActive = req.body.minIsActive; // 0 = before, 1 = active, 2 = ended
+  const maxIsActive = req.body.maxIsActive;
+
+  const data = ['%'+name+'%', lowEloLimit, highEloLimit, minIsRanked, maxIsRanked, minGreensFee, maxGreensFee, minBracketSize, maxBracketSize, '%'+gamemode+'%', minIsActive, maxIsActive];
+  const selectTournamentSQL = "SELECT tournamentID, name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, bracketSize, gamemode, isActive FROM Tournaments " +
+  "WHERE name LIKE ? AND lowEloLimit >= ? AND highEloLimit <= ? AND isRanked >= ? AND isRanked <= ? AND greensFee >= ? AND greensFee <= ? AND bracketSize >= ? AND bracketSize <= ? AND gamemode LIKE ? AND isActive >= ? AND isActive <= ?";
+
+  db.query(selectTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Tournaments: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Tournaments');
+      return;
+    }
+
+    console.log
+    res.status(200).json(result);
+  });
+});
+
 /* Get Players In Tournament */
 app.post('/tournament/get-players', (req, res) => {
   const tournamentID = req.body.tournamentID;
@@ -517,7 +548,7 @@ app.post('/tournament/delete', (req, res) => {
   });
 });
 
-/* Get Player ELO */
+/* Get Accounts */
 app.post('/account/get', (req, res) => {
   let name = req.body.name;
   name = setDefaultString(name, "");
@@ -533,18 +564,15 @@ app.post('/account/get', (req, res) => {
   const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
   const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
 
-  console.log(data);
-
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
-      console.error("Error finding playerID: ", err);
+      console.error("Error Selecting Players: ", err);
       res.status(500).json('Error');
       return;
     }
-    //console.log(result);
 
     if (result.length === 0) {
-      res.status(404).json('No Matching Players');
+      res.status(200).json('No Matching Players');
       return;
     }
 
@@ -552,7 +580,7 @@ app.post('/account/get', (req, res) => {
   });
 });
 
-/* Set Player ELO */
+/* Set Account ELO */
 app.post('/account/elo/set', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;

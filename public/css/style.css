@@ -1,23 +1,23 @@
   body {
       height: 100vh;
-      background: gray;
+      background: linear-gradient(to bottom, white, gray);
       text-align: center;
 
   }
 
 
   .bordered-container {
-      border: .5vw solid #aaaaaa;
-      padding: .5vw;
-      min-height: 100vh;
-      margin: 0;
-      box-sizing: border-box;
-      align-items: top;
+    border: .5vw solid #020202;
+    padding: .5vw;
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+    align-items: top;
 
-  }
+}
 
   .buttons {
-      border-radius: 50px;
+      /* border-radius: 50px; */
       background-color: #555555;
       color: white;
       padding: 3px;
@@ -68,13 +68,14 @@
   }
 
   .wrapper {
-
-      margin: 0 auto;
-      width: 60%;
-      background: linear-gradient(to bottom, #ffffff, #555555);
-      z-index: 1;
-      align-items: left;
-  }
+    margin: 0 auto;
+    padding: 20px;
+    width: 70%;
+    background: white;
+    z-index: 1;
+    align-items: left;
+    min-height: 1000px;
+}
 
   .leftmiddle-alignment {
       text-align: left;
@@ -88,7 +89,7 @@
 
   header {
       width: 100%;
-      height: 85px;
+      height: 75px;
       background: white;
       position: fixed;
       z-index: 2;
@@ -99,7 +100,7 @@
       width: 30%;
       float: left;
       text-align: left;
-      line-height: 100px;
+      line-height: 75px;
 
   }
 
@@ -114,13 +115,13 @@
 
   nav {
       float: right;
-      line-height: 100px;
+      line-height:75px;
   }
 
   nav a {
       text-decoration: none;
       font-size: 20px;
-      padding: 36px 10px;
+      padding: 15px 10px;
       margin: 0 1px;
       font-weight: 500;
       color: green;
@@ -132,10 +133,10 @@
   }
 
   .banner-area {
-      background-image: url(PoolSoftwareImages\AIPool.png);
+      background-image: url(/res/AIPool.png);
       background-size: cover;
       background-position: center center;
-      top: 85px;
+      top: 75px;
       height: 100vh;
       width: 100%;
       position: fixed;
@@ -151,26 +152,27 @@
       display: block;
       width: 100%;
       height: 100%;
-      background: lightgreen;
-      opacity: .7;
+      background: rgb(23, 95, 20);
+      opacity: .3;
       z-index: -1;
   }
 
   .banner-area h2 {
 
-      padding-top: 8%;
+      padding-top: 7%;
       font-size: 80px;
       color: white;
 
   }
 
   .content-area {
-      width: 100%;
-      height: 1000px;
-      position: relative;
-      background: gray;
-      top: 550px;
-  }
+    width: 100%;
+    height: flex;
+    position: relative;
+    background: rgb(41, 40, 40);
+    top: 450px;
+    
+}
 
   .content-area h2 {
       font-size: 40px;
@@ -285,6 +287,28 @@
       cursor: pointer;
   }
 
+  input {
+    padding: 1px;
+    margin: 1px;
+  }
+
+  .card {
+    background-color: #5a5;
+  }
+
+  .card-title {
+    color: black;
+  }
+
+  .list-group-item {
+    text-align: left;
+    background-color: lightgreen;
+  }
+
+  .dropdown-item i {
+    margin-left: auto;
+  }
+  
   .hidden {
     display: none;
   }
