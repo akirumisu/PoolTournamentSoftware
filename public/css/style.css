@@ -89,7 +89,7 @@
 
   header {
       width: 100%;
-      height: 85px;
+      height: 75px;
       background: white;
       position: fixed;
       z-index: 2;
@@ -100,7 +100,7 @@
       width: 30%;
       float: left;
       text-align: left;
-      line-height: 100px;
+      line-height: 75px;
 
   }
 
@@ -115,7 +115,7 @@
 
   nav {
       float: right;
-      line-height: 100px;
+      line-height:75px;
   }
 
   nav a {
@@ -136,7 +136,7 @@
       background-image: url(PoolSoftwareImages\AIPool.png);
       background-size: cover;
       background-position: center center;
-      top: 85px;
+      top: 75px;
       height: 100vh;
       width: 100%;
       position: fixed;
@@ -159,7 +159,7 @@
 
   .banner-area h2 {
 
-      padding-top: 8%;
+      padding-top: 7%;
       font-size: 80px;
       color: white;
 
