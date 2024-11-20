@@ -133,7 +133,7 @@
   }
 
   .banner-area {
-      background-image: url(AIPool.png);
+      background-image: url(/res/AIPool.png);
       background-size: cover;
       background-position: center center;
       top: 75px;
