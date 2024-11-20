@@ -7,11 +7,11 @@ $(function() {
       $('#advanced-search-options').slideDown();
       $('#player-eloMin').val(0);
       $('#player-eloMin').prop('disabled', false);
-      $('#player-eloMax').val(1000);
+      $('#player-eloMax').val(9999);
       $('#player-eloMax').prop('disabled', false);
       $('#player-tournamentsMin').val(0);
       $('#player-tournamentsMin').prop('disabled', false);
-      $('#player-tournamentsMax').val(1000);
+      $('#player-tournamentsMax').val(9999);
       $('#player-tournamentsMax').prop('disabled', false);
     }
     else {
@@ -55,8 +55,12 @@ $(function() {
       } else {
         $('#player-search-alert').hide();
 
-        for (let el in response) {
-          let player = response[el];
+        displayPlayer(0);
+        function displayPlayer(index) {
+          console.log(response.length);
+          if (index >= response.length) { return };
+
+          let player = response[index];
           let column = $('<div class="col-lg-4"></div>');
           let itemHTML = '<div class="card">' +
             '<a href="/player?id=' + player.playerID + '"> <h5 class="card-title">' + player.name + '</h5> </a>' +
@@ -64,18 +68,34 @@ $(function() {
               '<li class="list-group-item"> <b>Elo:</b> ' + player.elo + '</li>' +
               '<li class="list-group-item"> <b>Tournaments Played:</b> ' + player.numMatches + '</li>' +
             '</ul>' + 
-          '</div><br>' + 
-          `<style>
-          a {
-            text-decoration-color: black;
-          }
-          b {
-            font-weight: 500;
-          }
-          </style>`;
+          '</div><br>'
           column.append(itemHTML);
+          column.hide();
           $('#player-view-row').append(column);
+          if (index % 3 === 2) {
+            column.slideDown(200, 'linear', function() {
+              displayPlayer(index + 1);
+            });
+          } else {
+            column.slideDown(200, 'linear');
+            displayPlayer(index + 1);
+          }
         }
+        // for (let el in response) {
+        //   let player = response[el];
+        //   let column = $('<div class="col-lg-4"></div>');
+        //   let itemHTML = '<div class="card">' +
+        //     '<a href="/player?id=' + player.playerID + '"> <h5 class="card-title">' + player.name + '</h5> </a>' +
+        //     '<ul class="list-group">' +
+        //       '<li class="list-group-item"> <b>Elo:</b> ' + player.elo + '</li>' +
+        //       '<li class="list-group-item"> <b>Tournaments Played:</b> ' + player.numMatches + '</li>' +
+        //     '</ul>' + 
+        //   '</div><br>'
+        //   column.append(itemHTML);
+        //   column.hide();
+        //   $('#player-view-row').append(column);
+        //   column.slideDown(200, swing, );
+        // }
       }
     });
   });

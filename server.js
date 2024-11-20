@@ -377,6 +377,41 @@ app.post('/tournament/register', (req, res) => {
   });
 });
 
+app.post('/tournament/get', (req, res) => {
+  const name = req.body.name;
+  const lowEloLimit = req.body.lowEloLimit;
+  const highEloLimit = req.body.highEloLimit;
+  const minIsRanked = req.body.minIsRanked;
+  const maxIsRanked = req.body.maxIsRanked;
+  const minGreensFee = req.body.minGreensFee;
+  const maxGreensFee = req.body.maxGreensFee;
+  const minBracketSize = req.body.minBracketSize;
+  const maxBracketSize = req.body.maxBracketSize;
+  const gamemode = req.body.gamemode;
+  const minIsActive = req.body.minIsActive; // 0 = before, 1 = active, 2 = ended
+  const maxIsActive = req.body.maxIsActive;
+
+  const data = ['%'+name+'%', lowEloLimit, highEloLimit, minIsRanked, maxIsRanked, minGreensFee, maxGreensFee, minBracketSize, maxBracketSize, '%'+gamemode+'%', minIsActive, maxIsActive];
+  const selectTournamentSQL = "SELECT tournamentID, name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, bracketSize, gamemode, isActive FROM Tournaments " +
+  "WHERE name LIKE ? AND lowEloLimit >= ? AND highEloLimit <= ? AND isRanked >= ? AND isRanked <= ? AND greensFee >= ? AND greensFee <= ? AND bracketSize >= ? AND bracketSize <= ? AND gamemode LIKE ? AND isActive >= ? AND isActive <= ?";
+
+  db.query(selectTournamentSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Tournaments: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Tournaments');
+      return;
+    }
+
+    console.log
+    res.status(200).json(result);
+  });
+});
+
 /* Get Players In Tournament */
 app.post('/tournament/get-players', (req, res) => {
   const tournamentID = req.body.tournamentID;
@@ -427,7 +462,7 @@ app.post('/account/get', (req, res) => {
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
-      console.error("Error finding playerID: ", err);
+      console.error("Error Selecting Players: ", err);
       res.status(500).json('Error');
       return;
     }
