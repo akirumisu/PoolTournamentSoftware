@@ -11,9 +11,11 @@ $(function() {
       isPaid = true;
       $('#create-tournament-bracket-32').prop('disabled', false);
       $('#create-tournament-bracket-64').prop('disabled', false);
+      $('#create-tournament-bracket-128').prop('disabled', false);
+      $('#create-tournament-bracket-256').prop('disabled', false);
     } else if (response === 'Not Paid') {
       isPaid = false;
-      $('#create-tournament-alert').text("32 and 64 Sized Brackets Are Only For Paid Members");
+      $('#create-tournament-alert').text("32+ Sized Brackets Are Only For Paid Members");
       $('#create-tournament-alert').slideDown();
     } else if (response === 'No Matching Players') {
       $('#create-tournament-form').hide();
