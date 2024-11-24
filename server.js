@@ -265,14 +265,15 @@ app.post('/tournament/create', (req, res) => {
       return;
     }
 
-    if (result[0].isPaid === 0) { // Free user
+    if (result[0].isPaid !== 1) { // Free user
       if (bracketSize > 16) { // Free user entered paid only options
         res.status(200).json('Invalid Options');
         return
       }
     }
-    if (result[0].isVerifiedOrganizer === 0) { // Unverified user
-      if (isRanked === 1) { // Unverified user entered verified only options
+
+    if (result[0].isVerifiedOrganizer !== 1) { // Unverified user
+      if (Number(isRanked) === 1) { // Unverified user entered verified only options
         res.status(200).json('Invalid Options');
         return
       }
