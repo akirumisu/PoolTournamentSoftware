@@ -97,19 +97,24 @@ app.get('/createaccount', (req, res) => {
   res.sendFile(__dirname + '/public/html/createaccount.html');
 });
 
-// Serve searchTournament.html
-app.get('/tournament/search', (req, res) => {
-  res.sendFile(__dirname + '/public/html/searchTournament.html');
+// Serve createtournament.html
+app.get('/tournament/create', (req, res) => {
+  res.sendFile(__dirname + '/public/html/createtournament.html');
 });
 
-// Serve searchAccount.html
+// Serve searchTournament.html
+app.get('/tournament/search', (req, res) => {
+  res.sendFile(__dirname + '/public/html/searchtournament.html');
+});
+
+// Serve searchaccount.html
 app.get('/account/search', (req, res) => {
-  res.sendFile(__dirname + '/public/html/searchAccount.html');
+  res.sendFile(__dirname + '/public/html/searchaccount.html');
 });
 
 // Serve viewTournament.html
 app.get('/tournament/view', (req, res) => {
-  res.sendFile(__dirname + '/public/html/viewTournament.html');
+  res.sendFile(__dirname + '/public/html/viewtournament.html');
 });
 
 // Serve dev.html (developer testing page)
@@ -244,18 +249,43 @@ app.post('/tournament/create', (req, res) => {
   const gamemode = req.body.gamemode;
   const isActive = req.body.isActive; // 0 = before, 1 = active, 2 = ended
 
-  const data = [name, description, date, location, lowEloLimit,
-                highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
-                bracketSize, isSeeded, organizerID, gamemode, isActive];
-  const createTournamentSQL = "INSERT INTO Tournaments (name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, placesPaid, addedMoney, bracketSize, isSeeded, organizerID, gamemode, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const playerID = [req.body.playerID];
+  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
 
-  db.query(createTournamentSQL, data, (err, result) => {
+  db.query(selectisPaidSQL, playerID, (err, result) => {
     if (err) {
-      console.error("Error creating tournament: ", err);
+      console.error("Error Selecting Players: ", err);
       res.status(500).json('Error');
       return;
     }
-    res.status(200).json('Success,' + result.insertId);
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Players');
+      return;
+    }
+
+    if (result[0].isPaid === 0) { // Free user
+      if (bracketSize > 16) { // Free user entered paid options
+        res.status(200).json('Invalid Options');
+        return
+      }
+    }
+
+    // If paid options are not detected, continue as normal
+
+    const data = [name, description, date, location, lowEloLimit,
+      highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
+      bracketSize, isSeeded, organizerID, gamemode, isActive];
+    const createTournamentSQL = "INSERT INTO Tournaments (name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, placesPaid, addedMoney, bracketSize, isSeeded, organizerID, gamemode, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    db.query(createTournamentSQL, data, (err, result) => {
+      if (err) {
+        console.error("Error creating tournament: ", err);
+        res.status(500).json('Error');
+        return;
+      }
+      res.status(200).json('Success,' + result.insertId);
+    });
   });
 });
 
@@ -677,6 +707,33 @@ app.post('/account/get', (req, res) => {
     }
 
     res.status(200).json(result);
+  });
+});
+
+app.post('/account/get/isPaid', (req, res) => {
+  let playerID = req.body.playerID;
+
+  const data = [playerID];
+  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
+
+  db.query(selectisPaidSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Players: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Players');
+      return;
+    }
+
+    if (result[0].isPaid === 1) {
+      res.status(200).json('Paid');
+      return
+    }
+
+    res.status(200).json('Not Paid');
   });
 });
 
