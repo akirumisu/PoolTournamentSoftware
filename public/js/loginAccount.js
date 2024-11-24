@@ -11,6 +11,7 @@ $(function() {
 
       $.post('/account/login', data, function(response) {
           // Handle response
+          console.log(response);
           if (response.includes("Success")) {
             console.log("Successfully verified login credentials. Storing...");
             localStorage.setItem("email", data.email);
