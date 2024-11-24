@@ -251,9 +251,9 @@ app.post('/tournament/create', (req, res) => {
   const buyIn = req.body.buyIn; //forgot about this one
 
   const playerID = [req.body.playerID];
-  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
+  const selectPlayersSQL = "SELECT isPaid, isVerifiedOrganizer FROM Players WHERE playerID = ?";
 
-  db.query(selectisPaidSQL, playerID, (err, result) => {
+  db.query(selectPlayersSQL, playerID, (err, result) => {
     if (err) {
       console.error("Error Selecting Players: ", err);
       res.status(500).json('Error');
@@ -266,13 +266,18 @@ app.post('/tournament/create', (req, res) => {
     }
 
     if (result[0].isPaid === 0) { // Free user
-      if (bracketSize > 16) { // Free user entered paid options
+      if (bracketSize > 16) { // Free user entered paid only options
         res.status(200).json('Invalid Options');
         return
       }
     }
-
-    // If paid options are not detected, continue as normal
+    if (result[0].isVerifiedOrganizer === 0) { // Unverified user
+      if (isRanked === 1) { // Unverified user entered verified only options
+        res.status(200).json('Invalid Options');
+        return
+      }
+    }
+    // If everything is good, continue as normal
 
     const data = [name, description, date, location, lowEloLimit,
       highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
@@ -735,6 +740,33 @@ app.post('/account/get/isPaid', (req, res) => {
     }
 
     res.status(200).json('Not Paid');
+  });
+});
+
+app.post('/account/get/isVerifiedOrganizer', (req, res) => {
+  let playerID = req.body.playerID;
+
+  const data = [playerID];
+  const selectisPaidSQL = "SELECT isVerifiedOrganizer FROM Players WHERE playerID = ?";
+
+  db.query(selectisPaidSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Players: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Players');
+      return;
+    }
+
+    if (result[0].isVerifiedOrganizer === 1) {
+      res.status(200).json('Verified');
+      return
+    }
+
+    res.status(200).json('Not Verified');
   });
 });
 

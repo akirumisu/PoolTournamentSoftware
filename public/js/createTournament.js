@@ -1,22 +1,18 @@
 $(function() {
   let playerID = localStorage.getItem("playerID");
-  let isPaid = false;
 
   const playerData = {
     playerID: playerID
   };
 
-  //isVerifiedOrganizer for ranked tournaments !!!!!
-
   $.post('/account/get/isPaid', playerData, function(response) {
     if (response === 'Paid') {
-      isPaid = true;
       $('#create-tournament-bracket-32').prop('disabled', false);
       $('#create-tournament-bracket-64').prop('disabled', false);
       $('#create-tournament-bracket-128').prop('disabled', false);
       $('#create-tournament-bracket-256').prop('disabled', false);
+      $('.paid-bracket-option').css("color", "black");
     } else if (response === 'Not Paid') {
-      isPaid = false;
       $('#create-tournament-bracket-alert').text("32+ Sized Brackets Are Only For Paid Members");
       $('#create-tournament-bracket-alert').slideDown();
     } else if (response === 'No Matching Players') {
@@ -26,15 +22,28 @@ $(function() {
     }
   });
 
+  $.post('/account/get/isVerifiedOrganizer', playerData, function(response) {
+    if (response ===  'Verified') {
+      $('#create-tournament-isRanked').prop('disabled', false);
+      $('#verified-ranked-option').css("color", "black");
+    } else if (response === 'No Matching Players') { }
+    else {
+      $('#create-tournament-ranked-alert').text("Ranked Tournaments Are Only For Verified Organizers");
+      $('#create-tournament-ranked-alert').slideDown();
+    }
+  });
+
   $('#elo-limit-options-checkbox').change(function() {
     if ($(this).is(":checked")) {
       //$('#elo-limit-options').slideDown();
+      $('.elo-limit-options-label').css("color", "black");
       $('#create-tournament-lowEloLimit').prop('disabled', false);
       $('#create-tournament-lowEloLimit').val(0);
       $('#create-tournament-highEloLimit').prop('disabled', false);
       $('#create-tournament-highEloLimit').val(defaultMax);
     } else {
       //$('#elo-limit-options').slideUp();
+      $('.elo-limit-options-label').css("color", "gray");
       $('#create-tournament-lowEloLimit').prop('disabled', true);
       $('#create-tournament-highEloLimit').prop('disabled', true);
     }
@@ -43,6 +52,7 @@ $(function() {
   $('#paid-tournament-options-checkbox').change(function() {
     if ($(this).is(":checked")) {
       //$('#paid-tournament-options').slideDown();
+      $('.paid-tournament-options-label').css("color", "black");
       $('#create-tournament-buyIn').prop('disabled', false);
       $('#create-tournament-buyIn').val(0);
       $('#create-tournament-greensFee').prop('disabled', false);
@@ -51,6 +61,7 @@ $(function() {
       $('#create-tournament-placesPaid').val(0);
     } else {
       //$('#paid-tournament-options').slideUp();
+      $('.paid-tournament-options-label').css("color", "gray");
       $('#create-tournament-buyIn').prop('disabled', true);
       $('#create-tournament-greensFee').prop('disabled', true);
       $('#create-tournament-placesPaid').prop('disabled', true);
@@ -104,7 +115,8 @@ $(function() {
         if (response.includes("Success")) {
           tournamentID = response.replace("Success,","");
           window.location.href = "/tournament/view?id=" + tournamentID;
-        } else if (response === "Invalid Options") {
+        } else if (response === "Invalid Options") { // this happens if the user tries bypassing free or unverified restrictions
+          alert("Uh oh, something went wrong. Please try creating a tournament again. If this problem persists, contact our support team.");
           window.location.reload();
         }
         else {
