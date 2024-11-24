@@ -28,13 +28,13 @@ $(function() {
 
   $('#elo-limit-options-checkbox').change(function() {
     if ($(this).is(":checked")) {
-      $('#elo-limit-options').slideDown();
+      //$('#elo-limit-options').slideDown();
       $('#create-tournament-lowEloLimit').prop('disabled', false);
       $('#create-tournament-lowEloLimit').val(0);
       $('#create-tournament-highEloLimit').prop('disabled', false);
       $('#create-tournament-highEloLimit').val(defaultMax);
     } else {
-      $('#elo-limit-options').slideUp();
+      //$('#elo-limit-options').slideUp();
       $('#create-tournament-lowEloLimit').prop('disabled', true);
       $('#create-tournament-highEloLimit').prop('disabled', true);
     }
@@ -42,7 +42,7 @@ $(function() {
 
   $('#paid-tournament-options-checkbox').change(function() {
     if ($(this).is(":checked")) {
-      $('#paid-tournament-options').slideDown();
+      //$('#paid-tournament-options').slideDown();
       $('#create-tournament-buyIn').prop('disabled', false);
       $('#create-tournament-buyIn').val(0);
       $('#create-tournament-greensFee').prop('disabled', false);
@@ -50,7 +50,7 @@ $(function() {
       $('#create-tournament-placesPaid').prop('disabled', false);
       $('#create-tournament-placesPaid').val(0);
     } else {
-      $('#paid-tournament-options').slideUp();
+      //$('#paid-tournament-options').slideUp();
       $('#create-tournament-buyIn').prop('disabled', true);
       $('#create-tournament-greensFee').prop('disabled', true);
       $('#create-tournament-placesPaid').prop('disabled', true);
