@@ -18,6 +18,7 @@ $(function() {
             localStorage.setItem("password", data.password);
             playerID = parseInt(response.replace("Success,",""));
             localStorage.setItem("playerID", playerID);
+            window.location.href = "home";
           }
       });
   });
