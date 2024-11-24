@@ -94,29 +94,40 @@
           <div class="alert alert-warning" id="create-tournament-bracket-alert" role="alert"></div>
           <script>$('#create-tournament-bracket-alert').hide();</script> <!-- For hiding create-tournament-bracket-alert before .ready() -->
 
-          <label for="paid-tournament-options-checkbox"><b>Is This A Paid Tournament?</b> </label>
-          <input type="checkbox" id="paid-tournament-options-checkbox" name="paid-tournament-options-checkbox"><br>
-          <div id="paid-tournament-options">
-            <label for="create-tournament-buyIn">Buy-In: </label><br>
-            <input type="number" id="create-tournament-buyIn" name="create-tournament-buyIn" min="0" disabled><br>
-            <label for="create-tournament-greensFee">Greens Fee: </label><br>
-            <input type="number" id="create-tournament-greensFee" name="create-tournament-greensFee" min="0" disabled><br>
-            <label for="create-tournament-placesPaid">Number of Places Paid: </label><br>
-            <input type="number" id="create-tournament-placesPaid" name="create-tournament-placesPaid" min="0" disabled><br>
+          <div class="row">
+            <div class="col"></div>
+            <div class="col">
+              <label for="paid-tournament-options-checkbox"><b>Paid Tournament?</b> </label>
+              <input type="checkbox" id="paid-tournament-options-checkbox" name="paid-tournament-options-checkbox"><br>
+            </div>
+            <div class="col">
+              <div id="paid-tournament-options">
+                <label for="create-tournament-buyIn">Buy-In: </label><br>
+                <input type="number" id="create-tournament-buyIn" name="create-tournament-buyIn" value="0" min="0" disabled><br>
+                <label for="create-tournament-greensFee">Greens Fee: </label><br>
+                <input type="number" id="create-tournament-greensFee" name="create-tournament-greensFee" value="0" min="0" disabled><br>
+                <label for="create-tournament-placesPaid">Number of Places Paid: </label><br>
+                <input type="number" id="create-tournament-placesPaid" name="create-tournament-placesPaid" value="0" min="0" disabled><br>
+              </div>
+              <br>
+              <!--<script>$('#paid-tournament-options').hide();</script> For hiding paid-tournament-options before .ready() -->
+            </div>
+            <div class="col">
+              <label for="elo-limit-options-checkbox"><b>Elo Limits?</b> </label>
+              <input type="checkbox" id="elo-limit-options-checkbox" name="elo-limit-options-checkbox"><br>
+            </div>
+            <div class="col">
+              <div id="elo-limit-options">
+                <label for="create-tournament-lowEloLimit">Lower Elo Limit: </label><br>
+                <input type="number" id="create-tournament-lowEloLimit" name="create-tournament-lowEloLimit" value="0" min="0" disabled><br>
+                <label for="create-tournament-highEloLimit">Higher Elo Limit: </label><br>
+                <input type="number" id="create-tournament-highEloLimit" name="create-tournament-highEloLimit" value="9999" min="0" disabled><br>
+              </div>
+              <br>
+              <!--<script>$('#elo-limit-options').hide();</script> For hiding elo-limit-options before .ready() -->
+            </div>
+            <div class="col"></div>
           </div>
-          <br>
-          <script>$('#paid-tournament-options').hide();</script> <!-- For hiding paid-tournament-options before .ready() -->
-
-          <label for="elo-limit-options-checkbox"><b>Elo Limits?</b> </label>
-          <input type="checkbox" id="elo-limit-options-checkbox" name="elo-limit-options-checkbox"><br>
-          <div id="elo-limit-options">
-            <label for="create-tournament-lowEloLimit">Lower Elo Limit: </label><br>
-            <input type="number" id="create-tournament-lowEloLimit" name="create-tournament-lowEloLimit" value="0" min="0" disabled><br>
-            <label for="create-tournament-highEloLimit">Higher Elo Limit: </label><br>
-            <input type="number" id="create-tournament-highEloLimit" name="create-tournament-highEloLimit" value="9999" min="0" disabled><br>
-          </div>
-          <br>
-          <script>$('#elo-limit-options').hide();</script> <!-- For hiding elo-limit-options before .ready() -->
 
           <label for="create-tournament-isSeeded"><b>Elo Seeding?</b> </label>
           <input type="checkbox" id="create-tournament-isSeeded" name="create-tournament-isSeeded"><br><br>
