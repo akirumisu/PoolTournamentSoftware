@@ -6,6 +6,8 @@ $(function() {
     playerID: playerID
   };
 
+  //isVerifiedOrganizer for ranked tournaments !!!!!
+
   $.post('/account/get/isPaid', playerData, function(response) {
     if (response === 'Paid') {
       isPaid = true;
@@ -15,8 +17,8 @@ $(function() {
       $('#create-tournament-bracket-256').prop('disabled', false);
     } else if (response === 'Not Paid') {
       isPaid = false;
-      $('#create-tournament-alert').text("32+ Sized Brackets Are Only For Paid Members");
-      $('#create-tournament-alert').slideDown();
+      $('#create-tournament-bracket-alert').text("32+ Sized Brackets Are Only For Paid Members");
+      $('#create-tournament-bracket-alert').slideDown();
     } else if (response === 'No Matching Players') {
       $('#create-tournament-form').hide();
       $('#create-tournament-alert').text("Please Login Before Trying To Creating A Tournament!");
@@ -41,12 +43,15 @@ $(function() {
   $('#paid-tournament-options-checkbox').change(function() {
     if ($(this).is(":checked")) {
       $('#paid-tournament-options').slideDown();
+      $('#create-tournament-buyIn').prop('disabled', false);
+      $('#create-tournament-buyIn').val(0);
       $('#create-tournament-greensFee').prop('disabled', false);
       $('#create-tournament-greensFee').val(0);
       $('#create-tournament-placesPaid').prop('disabled', false);
       $('#create-tournament-placesPaid').val(0);
     } else {
       $('#paid-tournament-options').slideUp();
+      $('#create-tournament-buyIn').prop('disabled', true);
       $('#create-tournament-greensFee').prop('disabled', true);
       $('#create-tournament-placesPaid').prop('disabled', true);
     }
@@ -68,6 +73,7 @@ $(function() {
     let organizerID = playerID;
     let isSeeded = ($('#create-tournament-isSeeded').prop('checked')) ? 1 : 0;
     let gamemode = $('input[name="create-tournament-gamemode"]:checked').val();
+    let buyIn = $('#create-tournament-buyIn').val() || 0;
 
     if (organizerID === null) {
       alert("You must be logged in to create a tournament");
@@ -90,7 +96,8 @@ $(function() {
         isSeeded: isSeeded,         //
         organizerID: organizerID,   //NA
         gamemode: gamemode,         //*
-        isActive: 0                 //NA
+        isActive: 0,                //NA
+        buyIn: buyIn                //
       };
   
       $.post('/tournament/create', data, function(response) {

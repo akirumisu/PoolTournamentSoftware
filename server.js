@@ -248,6 +248,7 @@ app.post('/tournament/create', (req, res) => {
   const organizerID = req.body.organizerID;
   const gamemode = req.body.gamemode;
   const isActive = req.body.isActive; // 0 = before, 1 = active, 2 = ended
+  const buyIn = req.body.buyIn; //forgot about this one
 
   const playerID = [req.body.playerID];
   const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
@@ -275,8 +276,8 @@ app.post('/tournament/create', (req, res) => {
 
     const data = [name, description, date, location, lowEloLimit,
       highEloLimit, isRanked, greensFee, placesPaid, addedMoney,
-      bracketSize, isSeeded, organizerID, gamemode, isActive];
-    const createTournamentSQL = "INSERT INTO Tournaments (name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, placesPaid, addedMoney, bracketSize, isSeeded, organizerID, gamemode, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      bracketSize, isSeeded, organizerID, gamemode, isActive, buyIn];
+    const createTournamentSQL = "INSERT INTO Tournaments (name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, placesPaid, addedMoney, bracketSize, isSeeded, organizerID, gamemode, isActive, buyIn) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     db.query(createTournamentSQL, data, (err, result) => {
       if (err) {
