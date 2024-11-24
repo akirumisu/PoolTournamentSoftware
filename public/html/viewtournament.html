@@ -29,6 +29,14 @@
 
       <div class="header-container">
           <h1 id="tournament-name"></h1>
+          <div id="admin-menu-button" class="tournament-admin-menu-button hidden">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <ul id="admin-menu" class="tournament-admin-menu">
+            <li>Delete tournament</li>
+          </ul>
           <div class="header-right">
               <button class="text-button"><a href="/about">About</a></button>
               <p> | </p>
@@ -43,7 +51,8 @@
       <p id="tournament-status"></p>
 
       <div class="tournament-content">
-        <button id="tournament-register-button" class="hidden">Click to Register</button>
+        <button id="tournament-register-button" class="hidden"></button>
+        <button id="tournament-start-button" class="hidden tournament-start-button">Click to start tournament</button>
         <p id="tournament-description"></p>
         
         <div class="tournament-details">

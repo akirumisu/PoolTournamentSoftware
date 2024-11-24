@@ -214,9 +214,9 @@ $(function() {
     tournamentID: id,
   };
 
-  organizerID = localStorage.getItem('playerID');
+  let organizerID = localStorage.getItem('playerID');
   if (organizerID == null) organizerID = -1;
-  password = localStorage.getItem('password');
+  let password = localStorage.getItem('password');
   let credentials = {
     tournamentID: data.tournamentID,
     organizerID: organizerID,
@@ -224,8 +224,8 @@ $(function() {
   }
 
   $.post('/tournament/get-specific', data, function(response) {
-    playersInTournament = response[1];
-    completedMatches = response[2];
+    let playersInTournament = response[1];
+    let completedMatches = response[2];
     response = response[0];
     const bracketSize = response.bracketSize;
     const name = response.name;
@@ -268,6 +268,7 @@ $(function() {
     const isSeeded = response.isSeeded;
     const displayIsSeeded = (isSeeded == 1) ? "By Elo" : "Random";
     const isActive = response.isActive;
+    const tournamentOrganizerID = response.organizerID;
 
     if (isActive === 0) { //tournament hasn't started yet
       $('#tournament-status').text("Not Started").css({
@@ -378,22 +379,64 @@ $(function() {
       player.gridId = gridId;
     }
 
-    $('.tournament-bracket-container').on('click', '.tournament-bracket-win-button', function(event) {
-      newGridId = setWinner(credentials, playersInTournament, allPlayerGridIds, completedMatches, event.target.id, false);
-    });
+    if (credentials.organizerID == tournamentOrganizerID) {
+
+      $('.tournament-admin-menu-button').removeClass("hidden");
+      $('.tournament-admin-menu-button').on('click', function(event) {
+        $('.tournament-admin-menu').toggleClass("active");
+        event.stopPropagation();
+      });
+
+      if (isActive == 0) {
+        $('#tournament-start-button').removeClass("hidden");
+        $('#tournament-start-button').on('click', function(event) {
+          let data = {
+            tournamentID: credentials.tournamentID,
+            organizerID: credentials.organizerID,
+            orgPassword: credentials.password
+          }
+          $.post('/tournament/start', data, function(response) {
+            location.reload();
+          });
+        });
+      }
+
+      // Activate win buttons with event listener
+      $('.tournament-bracket-container').on('click', '.tournament-bracket-win-button', function(event) {
+        newGridId = setWinner(credentials, playersInTournament, allPlayerGridIds, completedMatches, event.target.id, false);
+      });
+    }
+
     if (isActive) {
       updateByeWins(playersInTournament, allPlayerGridIds);
       advanceCompletedMatches(playersInTournament, allPlayerGridIds, completedMatches);
     }
     if (isActive == 0) {
       $('#tournament-register-button').removeClass("hidden");
-      $('#tournament-register-button').on('click', function(event) {
+      if (playersInTournament.some(player => player.playerID == credentials.organizerID)) {
+        $('#tournament-register-button').addClass("tournament-withdraw-button");
+        $('#tournament-register-button').text("Click to withdraw");
+      } else {
+        $('#tournament-register-button').addClass("tournament-register-button");
+        $('#tournament-register-button').text("Click to register");
+      }
+      $('.tournament-register-button').on('click', function(event) {
         let data = {
           tournamentID: credentials.tournamentID,
           playerID: credentials.organizerID,
           playerPassword: credentials.password
         }
         $.post('/tournament/register', data, function(response) {
+          location.reload();
+        });
+      });
+      $('.tournament-withdraw-button').on('click', function(event) {
+        let data = {
+          tournamentID: credentials.tournamentID,
+          playerID: credentials.organizerID,
+          playerPassword: credentials.password
+        }
+        $.post('/tournament/withdraw', data, function(response) {
           location.reload();
         });
       });

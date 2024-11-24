@@ -1,5 +1,5 @@
   body {
-      height: 100vh;
+      min-height: 100vh;
       background: linear-gradient(to bottom, white, gray);
       text-align: center;
 
@@ -28,6 +28,10 @@
       justify-content: space-between;
       align-items: center;
       padding-bottom: 1vw;
+  }
+
+  .header-container h1 {
+    margin-right: 1rem;
   }
 
   .header-right {
@@ -285,6 +289,70 @@
       background-color: #5a5;
       padding: 1%;
       cursor: pointer;
+  }
+
+  .tournament-register-button {
+    background-color: #5a5;
+    padding: 1%;
+    cursor: pointer;
+  }
+
+  .tournament-withdraw-button {
+    background-color: #a55;
+    padding: 1%;
+    cursor: pointer;
+  }
+
+  .tournament-start-button {
+    background-color: #88a;
+    padding: 1%;
+    cursor: pointer;
+  }
+
+  .tournament-admin-menu-button {
+    float: right;
+    cursor: pointer;
+    border: 1px solid #555;
+    border-radius: 6px;
+    background-color: #eee;
+    position: relative;
+  }
+
+  .tournament-admin-menu-button div {
+    width: 2rem;
+    height: .3rem;
+    margin: .35rem;
+    background-color: black;
+  }
+
+  .tournament-admin-menu {
+    display: none;
+    position: absolute;
+    top: 1rem;
+    right: .25rem;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  .tournament-admin-menu.active {
+    display: block;
+  }
+
+  .tournament-admin-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .tournament-admin-menu ul li {
+    padding: .25rem .25rem;
+    cursor: pointer;
+  }
+  
+  .tournament-admin-menu ul li:hover {
+    background-color: #f0f0f0;
   }
 
   input {

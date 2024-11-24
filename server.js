@@ -1,5 +1,6 @@
 // .env variables
 require('dotenv').config()
+const readline = require('readline');
 // Use express to serve static files in the public directory
 const express = require('express');
 const app = express();
@@ -33,6 +34,32 @@ const server = http.createServer(app);
 // Start server
 server.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}/`);
+});
+
+// Start daily scheduled elo adjusting task
+setInterval(updateElo, 86400000);
+
+// Listen for commands on command line
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+rl.on('line', (input) => {
+  switch (input.trim()) {
+    case 'exit':
+      rl.close();
+      process.exit();
+      break;
+    case 'processElo':
+      console.log("Updating elos!");
+      updateElo();
+      break;
+    case 'updateElo':
+      console.log("Updating elos!");
+      updateElo();
+      break;
+  }
 });
 
 // Serve index.html file
@@ -135,8 +162,7 @@ app.post('/account/create', (req, res) => {
           res.status(500).json('Error');
           return;
         }
-
-        res.status(200).json('Success');
+        res.status(200).json("Success," + result2.insertId);
       });
     }
   });
@@ -476,6 +502,81 @@ app.post('/tournament/register', (req, res) => {
   });
 });
 
+app.post('/tournament/withdraw', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const playerID = req.body.playerID;
+  const playerPassword = req.body.playerPassword;
+
+  
+  // Check if the player exists and save their elo
+  const checkPlayerDetails = "SELECT * FROM Players WHERE PlayerID = ? and password = ?";
+  db.query(checkPlayerDetails, [playerID, playerPassword], (err, result) => {
+    if (err) {
+      console.error("Error checking credentials: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('Incorrect credentials');
+      return;
+    }
+
+    // Check if the player exists and save their elo
+    const withdrawPlayerSQL = "DELETE FROM PlayersInTournament WHERE tournamentID = ? AND playerID = ?";
+    db.query(withdrawPlayerSQL, [tournamentID, playerID], (err2, result) => {
+      if (err2) {
+        console.error("Error withdrawing player: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+
+      res.status(200).json('Success');
+
+    });
+  });
+});
+
+app.post('/tournament/start', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.orgPassword;
+
+  const data = [tournamentID, organizerID, orgPassword];
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const startTournamentSQL = "UPDATE Tournaments SET isActive = 1 WHERE tournamentID = ?";
+
+  db.query(credentialSQL, data, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during mark-win: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    db.query(startTournamentSQL, tournamentID, (err2, result) => {
+      if (err2) {
+        console.error("Error starting tournament: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      res.status(200).json("Success");
+    });
+
+  });
+
+
+
+  
+});
+
 app.post('/tournament/get', (req, res) => {
   const name = req.body.name;
   const lowEloLimit = req.body.lowEloLimit;
@@ -506,7 +607,6 @@ app.post('/tournament/get', (req, res) => {
       return;
     }
 
-    console.log
     res.status(200).json(result);
   });
 });
@@ -617,3 +717,82 @@ app.post('/account/elo/set', (req, res) => {
     });
   });
 });
+
+async function updateElo() {
+  const getMatchesSQL = "SELECT * FROM Matches m JOIN Tournaments t ON m.tournamentID = t.tournamentID WHERE t.isRanked = 1 and isEloCounted = 0;"
+
+  db.query(getMatchesSQL, (err, result) => { // Get all matches
+    if (err) {
+      console.error("Error Selecting Matches: ", err);
+      return;
+    }
+
+    console.log("Matches being processed: ", result.length);
+
+    for (let match of result) { // Iterate through all matches
+      const selectPlayerSQL = "SELECT playerID, elo, numMatches FROM Players WHERE playerID = ?";
+      db.query(selectPlayerSQL, match.playerOneID, (err, playerOne) => { // Get playerOne from match
+        if (err) {
+          console.error("Error Selecting Players: ", err);
+          return -1;
+        }
+
+        if (playerOne.length === 0) {
+          console.error("No matching player for id: ", match.playerOneID);
+          return -1;
+        }
+
+        db.query(selectPlayerSQL, match.playerTwoID, (err2, playerTwo) => { // Get playerTwo from match
+          if (err2) {
+            console.error("Error Selecting Players: ", err2);
+            return -1;
+          }
+
+          if (playerTwo.length === 0) {
+            console.error("No matching player for id: ", match.playerTwoID);
+            return -1;
+          }
+          let winner = (match.playerOneID == match.winnerID) ? 1 : 2;
+          playerOne = playerOne[0];
+          playerTwo = playerTwo[0];
+          let k = 30;
+          // Now playerOne and playerTwo are in memory. Do elo calcs and set their elos
+          let winProbabilityOne = 1 / (1 + Math.pow(10, (playerTwo.elo - playerOne.elo) / 200));
+
+          let winProbabilityTwo = 1 / (1 + Math.pow(10, (playerOne.elo - playerTwo.elo) / 200));
+
+          if (winner == 2) winner = 0;
+          let newPlayerOneElo = Math.round( playerOne.elo + k * (winner - winProbabilityOne) );
+          let newPlayerTwoElo = Math.round( playerTwo.elo + k * ((1- winner) - winProbabilityTwo) );
+
+          const updateEloSQL = "UPDATE Players SET elo = ? WHERE playerID = ?"
+          db.query(updateEloSQL, [newPlayerOneElo, playerOne.playerID], (eloErr, result1) => { // Set new playerOne elo
+            if (eloErr) {
+              console.error("Error updating playerOne elo: ", eloErr);
+              return -1;
+            }
+
+            db.query(updateEloSQL, [newPlayerTwoElo, playerTwo.playerID], (eloErr2, result2) => { // Set new playerTwo elo
+              if (eloErr2) {
+                console.error("Error updating playerOne elo: " +  eloErr2);
+                return -1;
+              }
+              const setMatchCounted = "UPDATE Matches SET isEloCounted = 1 WHERE matchID = ?";
+              db.query(setMatchCounted, match.matchID, (matchErr, result3) => { // Update match isEloCounted
+                winner = (winner == 0) ? 2 : 1;
+                console.log("Player " + winner + " won.");
+                console.log("PlayerOne starting elo " + playerOne.elo + ", playerTwo starting elo: " + playerTwo.elo);
+                console.log("PlayerOne end elo " + newPlayerOneElo + ", playerTwo end elo: " + newPlayerTwoElo);
+              }); // End updating match isEloCounted
+  
+            }); // End setting playerTwo
+
+          }); // End setting playerOne
+
+        }); // End selecting playerTwo
+
+      }); // End selecting playerOne
+    } // End looping through matches
+  }); // End selecting matches
+}
+
