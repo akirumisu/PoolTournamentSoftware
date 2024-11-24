@@ -1,382 +1,201 @@
-  body {
-      min-height: 100vh;
-      background: linear-gradient(to bottom, white, gray);
-      text-align: center;
-
-  }
-
-
-  .bordered-container {
-    border: .5vw solid #020202;
-    padding: .5vw;
-    min-height: 100vh;
-    margin: 0;
-    box-sizing: border-box;
-    align-items: top;
-
+body {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, white, gray);
+  text-align: center;
 }
 
-  .buttons {
-      /* border-radius: 50px; */
-      background-color: #555555;
-      color: white;
-      padding: 3px;
-  }
 
-  .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 1vw;
-  }
-
-  .header-container h1 {
-    margin-right: 1rem;
-  }
-
-  .header-right {
-      display: flex;
-      gap: 1rem;
-      margin-left: auto;
-  }
-
-  .text-button {
-      background: none;
-      border: none;
-      padding: 10;
-      color: inherit;
-      cursor: pointer;
-      font-size: larger;
-  }
-
-  .inner-container {
-      padding-top: 10vw;
-      padding-left: 10vw;
-      padding-right: 10vw;
-      margin-left: auto;
-      margin-right: 0;
-  }
-
-  .paragraph {
-      max-width: 25vw
-  }
-
-  */ .image {
-      width: 10%;
-  }
-
-
-  * {
-      margin: 0;
-      padding: 0;
-  }
-
-  .wrapper {
-    margin: 0 auto;
-    padding: 20px;
-    width: 70%;
-    background: white;
-    z-index: 1;
-    align-items: left;
-    min-height: 1000px;
+.bordered-container {
+  border: .5vw solid #020202;
+  padding: .5vw;
+  min-height: 100vh;
+  margin: 0;
+  box-sizing: border-box;
+  align-items: top;
 }
 
-  .leftmiddle-alignment {
-      text-align: left;
-      margin-left: 25vw;
-  }
-
-  .wrapper2 {
-      width: 90%;
-      margin: 0 auto;
-  }
-
-  header {
-      width: 100%;
-      height: 75px;
-      background: white;
-      position: fixed;
-      z-index: 2;
-  }
-
-
-  .logo {
-      width: 30%;
-      float: left;
-      text-align: left;
-      line-height: 75px;
-
-  }
-
-  .logo a {
-      font-size: 30px;
-      font-weight: 600;
-      text-decoration: none;
-      color: green;
-      letter-spacing: 4px;
-
-  }
-
-  nav {
-      float: right;
-      line-height:75px;
-  }
-
-  nav a {
-      text-decoration: none;
-      font-size: 20px;
-      padding: 15px 10px;
-      margin: 0 1px;
-      font-weight: 500;
-      color: green;
-  }
-
-  nav a:hover {
-      background: green;
-      color: white;
-  }
-
-  .banner-area {
-      background-image: url(/res/AIPool.png);
-      background-size: cover;
-      background-position: center center;
-      top: 75px;
-      height: 100vh;
-      width: 100%;
-      position: fixed;
-
-
-  }
-
-  .banner-area:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: rgb(23, 95, 20);
-      opacity: .3;
-      z-index: -1;
-  }
-
-  .banner-area h2 {
-
-      padding-top: 7%;
-      font-size: 80px;
-      color: white;
-
-  }
-
-  .content-area {
-    width: 100%;
-    height: flex;
-    position: relative;
-    background: rgb(41, 40, 40);
-    top: 450px;
-    
+.buttons {
+  /* border-radius: 50px; */
+  background-color: #555555;
+  color: white;
+  padding: 3px;
 }
 
-  .content-area h2 {
-      font-size: 40px;
-      margin: 0;
-      padding-top: 30px;
-      letter-spacing: 4px;
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1vw;
+}
 
-  }
+.header-container h1 {
+  margin-right: 1rem;
+}
 
-  .content-area p {
-      padding: 2% 0;
-      line-height: 30px;
-      text-align: justify;
+.header-right {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
 
-  }
+.text-button {
+  background: none;
+  border: none;
+  padding: 10;
+  color: inherit;
+  cursor: pointer;
+  font-size: larger;
+}
 
-  .align-center {
-      width: 100%;
-      margin-bottom: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 20px;
-  }
+.inner-container {
+  padding-top: 10vw;
+  padding-left: 10vw;
+  padding-right: 10vw;
+  margin-left: auto;
+  margin-right: 0;
+}
 
-  .tournament-content {
-      text-align: left;
-  }
+.paragraph {
+  max-width: 25vw
+}
 
-  .tournament-details {
-      width: 100%;
-      margin-bottom: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 20px;
-  }
+*/ .image {
+  width: 10%;
+}
 
-  .tournament-details-item {
-      padding: 15px;
-      text-align: center;
-  }
 
-  .tournament-details-item h3 {
-      margin-bottom: 10px;
-      text-align: center;
-  }
+* {
+  margin: 0;
+  padding: 0;
+}
 
-  .tournament-bracket-container {
-      display: grid;
-      grid-template-columns: repeat(15, 12em);
-      /* 20 columns with each column 150px wide */
-      overflow-x: auto;
-      /* Allow horizontal scrolling */
-      overflow-y: auto;
-      /* Allow vertical scrolling */
-      max-width: 100%;
-      /* Take up full width of container */
-      max-height: 100%;
-      /* Maximum height set to viewport height */
-      padding: 10px;
-  }
+.wrapper {
+  margin: 0 auto;
+  padding: 20px;
+  width: 70%;
+  background: white;
+  z-index: 1;
+  align-items: left;
+  min-height: calc(100vh - 400px);
+}
 
-  .tournament-bracket-empty-item {
-      justify-content: center;
-      align-items: center;
-      text-align: left;
-      min-height: 3em;
-      min-width: 12em;
-  }
+.leftmiddle-alignment {
+  text-align: left;
+  margin-left: 25vw;
+}
 
-  .tournament-bracket-left-border-item {
-      justify-content: center;
-      align-items: center;
-      border-left: 2px solid #000;
-      text-align: left;
-      min-height: 3em;
-      min-width: 12em;
-  }
+.wrapper2 {
+  width: 90%;
+  margin: 0 auto;
+}
 
-  .tournament-bracket-right-border-item {
-      justify-content: center;
-      align-items: center;
-      border-right: 2px solid #000;
-      text-align: left;
-      min-height: 3em;
-      min-width: 12em;
-  }
+header {
+  width: 100%;
+  height: 75px;
+  background: white;
+  position: fixed;
+  z-index: 2;
+}
 
-  .tournament-bracket-item {
-      justify-content: center;
-      align-items: center;
-      border: 2px solid #000;
-      text-align: left;
-      min-height: 3em;
-      min-width: 12em;
-  }
 
-  .tournament-bracket-winner-item {
-      justify-content: center;
-      align-items: center;
-      border: 4px solid #dd5;
-      text-align: left;
-      min-height: 3em;
-      min-width: 12em;
-  }
+.logo {
+  width: 30%;
+  float: left;
+  text-align: left;
+  line-height: 75px;
+}
 
-  .tournament-bracket-win-button {
-      float: right;
-      background-color: #5a5;
-      padding: 1%;
-      cursor: pointer;
-  }
+.logo a {
+  font-size: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  color: green;
+  letter-spacing: 4px;
+}
 
-  .tournament-register-button {
-    background-color: #5a5;
-    padding: 1%;
-    cursor: pointer;
-  }
+nav {
+  float: right;
+  line-height:75px;
+}
 
-  .tournament-withdraw-button {
-    background-color: #a55;
-    padding: 1%;
-    cursor: pointer;
-  }
+nav a {
+  text-decoration: none;
+  font-size: 20px;
+  padding: 15px 10px;
+  margin: 0 1px;
+  font-weight: 500;
+  color: green;
+}
 
-  .tournament-start-button {
-    background-color: #88a;
-    padding: 1%;
-    cursor: pointer;
-  }
+nav a:hover {
+  background: green;
+  color: white;
+}
 
-  .tournament-admin-menu-button {
-    float: right;
-    cursor: pointer;
-    border: 1px solid #555;
-    border-radius: 6px;
-    background-color: #eee;
-    position: relative;
-  }
+.banner-area {
+  background-image: url(/res/AIPool.png);
+  background-size: cover;
+  background-position: center center;
+  top: 75px;
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+}
 
-  .tournament-admin-menu-button div {
-    width: 2rem;
-    height: .3rem;
-    margin: .35rem;
-    background-color: black;
-  }
+.banner-area:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgb(23, 95, 20);
+  opacity: .3;
+  z-index: -1;
+}
 
-  .tournament-admin-menu {
-    display: none;
-    position: absolute;
-    top: 1rem;
-    right: .25rem;
-    background-color: white;
-    border: 1px solid #ccc;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-  }
+.banner-area h2 {
+  padding-top: 100px;
+  font-size: 80px;
+  color: white;
+}
 
-  .tournament-admin-menu.active {
-    display: block;
-  }
+.content-area {
+  width: 100%;
+  height: flex;
+  position: relative;
+  background: rgb(41, 40, 40);
+  top: 400px;
+}
 
-  .tournament-admin-menu ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .tournament-admin-menu ul li {
-    padding: .25rem .25rem;
-    cursor: pointer;
-  }
-  
-  .tournament-admin-menu ul li:hover {
-    background-color: #f0f0f0;
-  }
+.content-area h2 {
+  font-size: 40px;
+  margin: 0;
+  padding-top: 30px;
+  letter-spacing: 4px;
+}
 
-  input {
-    padding: 1px;
-    margin: 1px;
-  }
+.content-area p {
+  padding: 2% 0;
+  line-height: 30px;
+  text-align: justify;
+}
 
-  .card {
-    background-color: #5a5;
-  }
+.align-center {
+  width: 100%;
+  margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+}
 
-  .card-title {
-    color: black;
-  }
+input {
+  padding: 1px;
+  margin: 1px;
+}
 
-  .list-group-item {
-    text-align: left;
-    background-color: lightgreen;
-  }
-
-  .dropdown-item i {
-    margin-left: auto;
-  }
-  
-  .hidden {
-    display: none;
-  }
+.hidden {
+  display: none;
+}
