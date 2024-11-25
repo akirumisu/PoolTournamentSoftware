@@ -13,9 +13,9 @@ $(function() {
     $.post('/account/create', data, function(response) {
       console.log(response);
       if (response.includes("Success")) {
-        localStorage.setItem("email", data.email);
-        localStorage.setItem("password", data.password);
-        localStorage.setItem("playerID", parseInt(response.replace("Success,","")));
+        //localStorage.setItem("email", data.email);
+        //localStorage.setItem("password", data.password);
+        //localStorage.setItem("playerID", parseInt(response.replace("Success,","")));
         window.location.href = "/";
       }
     });

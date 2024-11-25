@@ -164,6 +164,19 @@ app.get('/dev', (req, res) => {
   res.render('dev');
 });
 
+// If I do something like this, then you can simply call
+// $.get('/api/session', (session) => {
+//     let something = session.playerID;
+//     let somethingElse = session.somethingElse;
+// });
+app.get('/api/session', (req, res) => {
+  res.json({
+    isSignedIn: req.session.playerID ? true : false,
+    playerID: req.session.playerID || null,
+    password: req.session.password || null
+  });
+});
+
 function setDefaultNum(num, defaultNum) {
   if (isNaN(num) || num == null) {
     return defaultNum;
@@ -208,8 +221,19 @@ app.post('/account/create', (req, res) => {
           res.status(500).json('Error');
           return;
         }
-        req.session.playerID = result2.insertId; // Set playerID in express session
-        res.status(200).json("Success," + result2.insertId);
+
+        const data2 = [result2.insertId];
+        const selectAllSQL = "SELECT * FROM Players WHERE playerID = ?";
+        db.query(selectAllSQL, data2, (err3, result3) => {
+          if (err3) {
+            res.status(500).json('Error');
+            return;
+          }
+
+          req.session.playerID = result3[0].playerID; // Set playerID in express session
+          req.session.password = result3[0].password; // Set password in express session
+          res.status(200).json('Success,' + result3[0].playerID);
+        });
       });
     }
   });
@@ -247,8 +271,17 @@ app.post('/account/login', (req, res) => {
         if (result2.length === 0) {
           res.status(200).json('Incorrect Password');
         } else {
-          req.session.playerID = result2[0].playerID; // Set playerID in express session
-          res.status(200).json('Success,' + result2[0].playerID);
+          // only return select all if the password given is correct; for security
+          const selectPlayerIDPasswordSQL = "SELECT * FROM Players WHERE email = ? and password = ?";
+          db.query(selectPlayerIDPasswordSQL, data, (err3, result3) => {
+            if (err3) {
+              res.status(500).json('Error');
+              return;
+            }
+            req.session.playerID = result3[0].playerID; // Set playerID in express session
+            req.session.password = result3[0].password; // Set password in express session
+            res.status(200).json('Success,' + result3[0].playerID);
+          });
         }
       });
     }

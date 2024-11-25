@@ -206,7 +206,7 @@ function updateSeeds(credentials, playersInTournament) {
   });
 }
 
-$(function() {
+$(async function() {
   const params = new URLSearchParams(document.location.search);
   const id = params.get("id");
 
@@ -214,9 +214,16 @@ $(function() {
     tournamentID: id,
   };
 
-  let organizerID = localStorage.getItem('playerID');
+  const fetchSessionData = async () => {
+    return await $.get('/api/session');
+  };
+
+  const session = await fetchSessionData(); // waits for this async function to finish before continuing
+
+  let organizerID = session.playerID; //localStorage.getItem('playerID');
   if (organizerID == null) organizerID = -1;
-  let password = localStorage.getItem('password');
+  let password = session.password; //localStorage.getItem('password');
+
   let credentials = {
     tournamentID: data.tournamentID,
     organizerID: organizerID,

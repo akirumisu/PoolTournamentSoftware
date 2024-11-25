@@ -1,5 +1,11 @@
-$(function() {
-  let playerID = localStorage.getItem("playerID");
+$(async function() {
+  const fetchSessionData = async () => {
+    return await $.get('/api/session');
+  };
+
+  const session = await fetchSessionData(); // waits for this async function to finish before continuing
+
+  let playerID = session.playerID; //localStorage.getItem("playerID");
 
   const playerData = {
     playerID: playerID
