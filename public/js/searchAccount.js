@@ -2,6 +2,13 @@ $(function() {
   let defaultMin = 0;
   let defaultMax = Number.MAX_SAFE_INTEGER;
 
+  let URLparams = new URLSearchParams(document.location.search);
+  let URLname = URLparams.get("name");
+
+  if (URLname) {
+    $('#player-name').val(URLname);
+  }
+
   $('#advanced-search-button').change(function() {
     if ($(this).is(":checked")) {
       $('#advanced-search-options').slideDown();
@@ -45,6 +52,8 @@ $(function() {
         lowNumMatches: tournamentsMin,
         highNumMatches: tournamentsMax
     };
+
+    window.history.replaceState(null, '', "/account/search?name=" + encodeURIComponent(data.name));
 
     $.post('/account/get', data, function(response) {
       $('#player-view-row').empty();

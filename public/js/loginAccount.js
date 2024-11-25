@@ -10,16 +10,14 @@ $(function() {
       console.log(data);
 
       $.post('/account/login', data, function(response) {
-          // Handle response
-          console.log(response);
-          if (response.includes("Success")) {
-            console.log("Successfully verified login credentials. Storing...");
-            localStorage.setItem("email", data.email);
-            localStorage.setItem("password", data.password);
-            playerID = parseInt(response.replace("Success,",""));
-            localStorage.setItem("playerID", playerID);
-            window.location.href = "home";
-          }
+        console.log(response);
+        if (response.includes("Success")) {
+          console.log("Successfully verified login credentials. Storing...");
+          localStorage.setItem("email", data.email);
+          localStorage.setItem("password", data.password);
+          localStorage.setItem("playerID", parseInt(response.replace("Success,","")));
+          window.location.href = "/";
+        }
       });
   });
 });

@@ -4,7 +4,22 @@ const readline = require('readline');
 // Use express to serve static files in the public directory
 const express = require('express');
 const app = express();
+
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
+// Express session middleware
+const session = require('express-session');
+app.use(session({
+  secret: process.env.SESSION_SECRET || '0jerh0ihjrh80h4winu4wegjn4wegjn', // I don't feel like sending another .env file out
+  resave: false,             // false for performance
+  saveUninitialized: false,  // false for performance
+  cookie: { secure: false }  // false bc HTTP
+}));
+
 app.use(express.static('public', {extensions:['html']}));
+
 // json + body parsing functionality
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -64,64 +79,90 @@ rl.on('line', (input) => {
 
 // Serve index.html file
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/html/index.html');
-});
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
 
-// Serve home.html file
-app.get('/home', (req, res) => {
-  res.sendFile(__dirname + '/public/html/home.html');
-});
-
-// Serve example.html file
-app.get('/example', (req, res) => {
-  res.sendFile(__dirname + '/public/html/example.html');
+  res.render('index', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve about.html file
 app.get('/about', (req, res) => {
-  res.sendFile(__dirname + '/public/html/about.html');
-});
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
 
-// Serve contact.html file
-app.get('/contact', (req, res) => {
-  res.sendFile(__dirname + '/public/html/contact.html');
+  res.render('about', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve login.html file
 app.get('/login', (req, res) => {
-  res.sendFile(__dirname + '/public/html/login.html');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('login', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve createaccount.html file
 app.get('/createaccount', (req, res) => {
-  res.sendFile(__dirname + '/public/html/createaccount.html');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('createaccount', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve createtournament.html
 app.get('/tournament/create', (req, res) => {
-  res.sendFile(__dirname + '/public/html/createtournament.html');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('createtournament', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve searchTournament.html
 app.get('/tournament/search', (req, res) => {
-  res.sendFile(__dirname + '/public/html/searchtournament.html');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('searchtournament', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve searchaccount.html
 app.get('/account/search', (req, res) => {
-  res.sendFile(__dirname + '/public/html/searchaccount.html');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('searchaccount', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve viewTournament.html
 app.get('/tournament/view', (req, res) => {
-  res.sendFile(__dirname + '/public/html/viewtournament.html');
+  res.render('viewtournament');
 });
 
 // Serve dev.html (developer testing page)
 app.get('/dev', (req, res) => {
-  res.sendFile(__dirname + '/public/html/dev.html');
+  res.render('dev');
 });
-
 
 function setDefaultNum(num, defaultNum) {
   if (isNaN(num) || num == null) {
@@ -167,6 +208,7 @@ app.post('/account/create', (req, res) => {
           res.status(500).json('Error');
           return;
         }
+        req.session.playerID = result2.insertId; // Set playerID in express session
         res.status(200).json("Success," + result2.insertId);
       });
     }
@@ -205,10 +247,23 @@ app.post('/account/login', (req, res) => {
         if (result2.length === 0) {
           res.status(200).json('Incorrect Password');
         } else {
+          req.session.playerID = result2[0].playerID; // Set playerID in express session
           res.status(200).json('Success,' + result2[0].playerID);
         }
       });
     }
+  });
+});
+
+/* Logout Player Account */
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json('Error');
+      return;
+    }
+    res.clearCookie('connect.sid'); // Clear express session cookies
+    res.redirect('/');
   });
 });
 

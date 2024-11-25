@@ -199,3 +199,16 @@ input {
 .hidden {
   display: none;
 }
+
+.searchbar {
+  padding-top: 15px;
+}
+
+#nav-tournament-search-form {
+  height: 53px;
+  padding-right: 2vw;
+}
+
+#nav-home {
+  margin-left: 2vw;
+}

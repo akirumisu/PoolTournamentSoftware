@@ -2,6 +2,13 @@ $(function() {
   let defaultMin = 0;
   let defaultMax = Number.MAX_SAFE_INTEGER;
 
+  let URLparams = new URLSearchParams(document.location.search);
+  let URLname = URLparams.get("name");
+
+  if (URLname) {
+    $('#tournament-name').val(URLname);
+  }
+
   $('#advanced-search-button').change(function() {
     if ($(this).is(":checked")) {
       $('#advanced-search-options').slideDown();
@@ -59,13 +66,13 @@ $(function() {
     }
   });
 
-	$('#tournament-search-form').submit(function(event) {
-		event.preventDefault();
+  $('#tournament-search-form').submit(function(event) {
+    event.preventDefault();
 
-		let eloMin = $('#tournament-lowEloLimit').val() || defaultMin;
-		let eloMax = $('#tournament-highEloLimit').val() || defaultMax;
-		let bracketMin = $('#tournament-minBracketSize').val() || defaultMin;
-		let bracketMax = $('#tournament-maxBracketSize').val() || defaultMax;
+    let eloMin = $('#tournament-lowEloLimit').val() || defaultMin;
+    let eloMax = $('#tournament-highEloLimit').val() || defaultMax;
+    let bracketMin = $('#tournament-minBracketSize').val() || defaultMin;
+    let bracketMax = $('#tournament-maxBracketSize').val() || defaultMax;
 
     let isRankedSelectedVal = $('input[name="tournament-isRanked"]:checked').val() || "any";
     let minIsRanked;
@@ -107,8 +114,8 @@ $(function() {
     }
 
     if ($('#advanced-search-options').is(":hidden")) {
-			eloMin = defaultMin;
-			eloMax = defaultMax;
+      eloMin = defaultMin;
+      eloMax = defaultMax;
       bracketMin = defaultMin;
       bracketMax = defaultMax;
       minIsRanked = 0;
@@ -120,7 +127,7 @@ $(function() {
       maxIsActive = 2;
     }
 
-		const data = {
+    const data = {
       name: $('#tournament-name').val(),
       lowEloLimit: eloMin,
       highEloLimit: eloMax,
@@ -133,9 +140,13 @@ $(function() {
       gamemode: gamemode,
       minIsActive: minIsActive,
       maxIsActive: maxIsActive
-		}
+    }
 
-		$.post('/tournament/get', data, async function(response) {
+    if (data.name) {
+      window.history.replaceState(null, '', "/tournament/search?name=" + encodeURIComponent(data.name));
+    }
+
+    $.post('/tournament/get', data, async function(response) {
       $('#tournament-view-row').empty();
 
       if (response === 'No Matching Tournaments') {
@@ -224,7 +235,7 @@ $(function() {
           $('#tournament-view-row').append(column);
           column.slideDown(200, 'linear');
         }
-			}
-		});
-	});
+      }
+    });
+  });
 });
