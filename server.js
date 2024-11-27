@@ -951,6 +951,33 @@ app.post('/account/get', (req, res) => {
   });
 });
 
+/* View Account Info */
+app.post('/account/get', (req, res) => {
+  const name = req.body.name;
+  const lowElo = parseInt(req.body.lowElo);
+  const highElo = parseInt(req.body.highElo);
+  const lowNumMatches = parseInt(req.body.lowNumMatches);
+  const highNumMatches = parseInt(req.body.highNumMatches);
+
+  const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
+
+  db.query(selectAccountSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Players: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(200).json('No Matching Players');
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
 app.post('/account/get/isPaid', (req, res) => {
   let playerID = req.body.playerID;
 
