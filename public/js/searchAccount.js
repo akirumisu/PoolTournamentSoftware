@@ -75,7 +75,7 @@ $(function() {
             '<a href="/player?id=' + player.playerID + '"> <h5 class="card-title">' + player.name + '</h5> </a>' +
             '<ul class="list-group">' +
               '<li class="list-group-item"> <b>Elo:</b> ' + player.elo + '</li>' +
-              '<li class="list-group-item"> <b>Tournaments Played:</b> ' + player.numMatches + '</li>' +
+              '<li class="list-group-item"> <b>Matches Played:</b> ' + player.numMatches + '</li>' +
             '</ul>' + 
           '</div><br>'
           column.append(itemHTML);

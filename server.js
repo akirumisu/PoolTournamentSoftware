@@ -12,11 +12,14 @@ app.set('views', __dirname + '/views');
 // Express session middleware
 const session = require('express-session');
 app.use(session({
-  secret: process.env.SESSION_SECRET || '0jerh0ihjrh80h4winu4wegjn4wegjn', // I don't feel like sending another .env file out
+  secret: process.env.SESSION_SECRET,
   resave: false,             // false for performance
   saveUninitialized: false,  // false for performance
   cookie: { secure: false }  // false bc HTTP
 }));
+
+// Stripe for payment processing
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 app.use(express.static('public', {extensions:['html']}));
 
@@ -77,7 +80,7 @@ rl.on('line', (input) => {
   }
 });
 
-// Serve index.html file
+// Serve index.html ejs
 app.get('/', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -88,7 +91,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Serve about.html file
+// Serve about.html ejs
 app.get('/about', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -99,7 +102,7 @@ app.get('/about', (req, res) => {
   });
 });
 
-// Serve login.html file
+// Serve login.html ejs
 app.get('/login', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -110,7 +113,7 @@ app.get('/login', (req, res) => {
   });
 });
 
-// Serve createaccount.html file
+// Serve createaccount.html ejs
 app.get('/createaccount', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -121,7 +124,7 @@ app.get('/createaccount', (req, res) => {
   });
 });
 
-// Serve createtournament.html
+// Serve createtournament.ejs
 app.get('/tournament/create', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -132,7 +135,7 @@ app.get('/tournament/create', (req, res) => {
   });
 });
 
-// Serve searchTournament.html
+// Serve searchTournament.ejs
 app.get('/tournament/search', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -143,7 +146,7 @@ app.get('/tournament/search', (req, res) => {
   });
 });
 
-// Serve searchaccount.html
+// Serve searchaccount.ejs
 app.get('/account/search', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
@@ -154,10 +157,61 @@ app.get('/account/search', (req, res) => {
   });
 });
 
-// Serve viewTournament.html
+// Serve viewTournament.ejs
 app.get('/tournament/view', (req, res) => {
   res.render('viewtournament');
 });
+
+// Serve membership.ejs
+app.get('/membership', (req, res) => {
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('membership', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId,
+  });
+});
+
+app.get('/paymentsuccess', async (req, res) => {
+  const sessionId = req.query.session_id;
+
+  try {
+    // Retrieve the session from Stripe using the session_id
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    // Check if the session was successful
+    if (session.payment_status === 'paid') {
+      const playerID = session.metadata.playerID; // Get playerID from metadata
+
+      // paidExpiryDate is 30 days later
+      const paidExpiryDate = new Date();
+      paidExpiryDate.setDate(paidExpiryDate.getDate() + 30);
+
+      // Update the isPaid column in the database
+      const updateisPaidSQL = 'UPDATE Players SET isPaid = 1, paidExpiryDate = ? WHERE playerID = ?';
+      db.query(updateisPaidSQL, [paidExpiryDate, playerID], (err, result) => {
+        if (err) {
+          console.error('Error updating isPaid or paidExpiryDate:', err);
+          return res.status(500).send('Database error');
+        }
+        console.log('isPaid updated for playerID:', playerID);
+      });
+
+      res.render('paymentsuccess', {
+        message: 'Payment Successful!',
+      });
+    } else {
+      res.render('paymentsuccess', {
+        message: 'Payment Was Unsuccessful.',
+      });
+    }
+  } catch (error) {
+    console.error('Error retrieving session:', error);
+    res.status(500).send('Error processing payment');
+  }
+});
+
 
 // Serve dev.html (developer testing page)
 app.get('/dev', (req, res) => {
@@ -176,6 +230,98 @@ app.get('/api/session', (req, res) => {
     password: req.session.password || null
   });
 });
+
+// Using stripe for payment processing. This is from their quickstart guide
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price: 'price_1QPrOOP7cQkvGditnuLlj1Lo',
+        quantity: 1,
+      },
+    ],
+    mode: 'subscription',
+    success_url: `http://localhost:8080/paymentsuccess?session_id={CHECKOUT_SESSION_ID}`, // return URLs are mandatory
+    cancel_url: 'http://localhost:8080/membership',
+    metadata: {
+      playerID: req.session.playerID, // Add playerID to metadata
+    },
+  });
+  res.redirect(303, session.url); // redirect to the return URL
+});
+
+const checkSubscriptions = async () => {
+  try {
+    const activeSubscriptions = await stripe.subscriptions.list({
+      status: 'active', // Only check active subscriptions
+      limit: 100, //max number of objects
+    });
+
+    const endedSubscriptions = await stripe.subscriptions.list({ // Includes: Canceled and subscriptions that are expired due to incomplete payment
+      status: 'ended', // Only check subscriptions that have ended
+      limit: 100, //max number of objects
+    });
+
+    const currentDate = new Date();
+
+    activeSubscriptions.data.forEach(async (activeSubscriptions) => {
+      const playerID = activeSubscriptions.metadata.playerID; // Retrieve playerID from metadata. We saved this earlier!
+
+      // If their subscription is still going / renewed, then update their paidExpiryDate 30 days later
+      const selectpaidExpiryDateSQL = 'SELECT paidExpiryDate FROM Players WHERE playerID = ? AND isPaid = 1';
+      db.query(selectpaidExpiryDateSQL, [playerID], (err, result) => {
+        if (err) {
+          console.error('Error selecting paidExpiryDate:', err);
+          return res.status(500).send('Database error');
+        }
+        if (result.length !== 0) {
+          const paidExpiryDate = new Date(result[0].paidExpiryDate);
+          const newPaidExpiryDate = new Date();
+          newPaidExpiryDate.setDate(paidExpiryDate.getDate() + 30);
+  
+          if (currentDate > paidExpiryDate) {
+            const updateisPaidSQL = 'UPDATE Players SET paidExpiryDate = ? WHERE playerID = ?';
+            db.query(updateisPaidSQL, [newPaidExpiryDate, playerID], (err, result) => {
+              if (err) {
+                console.error('Error updating paidExpiryDate:', err);
+              }
+            });
+          }
+        }
+      });
+    });
+
+    endedSubscriptions.data.forEach(async (endedSubscriptions) => {
+      const playerID = endedSubscriptions.metadata.playerID; // Retrieve playerID from metadata. We saved this earlier!
+
+      // If their subscription ended, but they still have a subscription, check their paidExpiryDate before removing isPaid
+      const selectpaidExpiryDateSQL = 'SELECT paidExpiryDate FROM Players WHERE playerID = ? AND isPaid = 1';
+      db.query(selectpaidExpiryDateSQL, [playerID], (err, result) => {
+        if (err) {
+          console.error('Error selecting paidExpiryDate:', err);
+          return res.status(500).send('Database error');
+        }
+        if (result.length !== 0) {
+          const paidExpiryDate = new Date(result[0].paidExpiryDate);
+
+          if (currentDate > paidExpiryDate) {
+            const updateisPaidSQL = 'UPDATE Players SET isPaid = 0 WHERE playerID = ?';
+            db.query(updateisPaidSQL, [playerID], (err, result) => {
+              if (err) {
+                console.error('Error updating isPaid:', err);
+              }
+            });
+          }
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error checking subscriptions:', error);
+  }
+};
+
+checkSubscriptions();
+setInterval(checkSubscriptions, 86400000);
 
 function setDefaultNum(num, defaultNum) {
   if (isNaN(num) || num == null) {
