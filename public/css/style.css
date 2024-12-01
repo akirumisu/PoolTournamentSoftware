@@ -45,6 +45,8 @@ body {
   color: inherit;
   cursor: pointer;
   font-size: larger;
+
+  
 }
 
 .inner-container {
@@ -211,4 +213,17 @@ input {
 
 #nav-home {
   margin-left: 2vw;
+}
+
+.label {
+text-align: center;
+
+}
+
+.center {
+display: block;
+margin-left: auto;
+margin-right: auto;
+width: 50%; 
+
 }
