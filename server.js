@@ -157,9 +157,53 @@ app.get('/account/search', (req, res) => {
   });
 });
 
+// Serve viewaccount.ejs
+app.get('/account/view', (req, res) => {
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+  const queryParameters = req.query;
+  const playerID = queryParameters.id;
+
+  if (!playerID) {
+    res.status(404).json('No id specified');
+    return;
+  }
+
+  const data = [playerID];
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
+
+  db.query(selectAccountSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Players: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).json('No Matching Players');
+      return;
+    }
+
+    let owner = (result[0].playerID === sessionPlayerId) ? true : false;
+
+    res.render('viewaccount', {
+      isSignedIn: isSignedIn,
+      sessionPlayerId: sessionPlayerId,
+      viewedAccount: result[0],
+      owner: owner
+    });
+  });
+});
+
 // Serve viewTournament.ejs
 app.get('/tournament/view', (req, res) => {
-  res.render('viewtournament');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('viewtournament', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve membership.ejs
@@ -919,8 +963,8 @@ app.post('/tournament/delete', (req, res) => {
   });
 });
 
-/* Get Accounts */
-app.post('/account/get', (req, res) => {
+/* Get Accounts For Searching */
+app.post('/account/search', (req, res) => {
   let name = req.body.name;
   name = setDefaultString(name, "");
   let lowElo = parseInt(req.body.lowElo);
@@ -952,14 +996,10 @@ app.post('/account/get', (req, res) => {
 });
 
 /* View Account Info */
-app.post('/account/get', (req, res) => {
-  const name = req.body.name;
-  const lowElo = parseInt(req.body.lowElo);
-  const highElo = parseInt(req.body.highElo);
-  const lowNumMatches = parseInt(req.body.lowNumMatches);
-  const highNumMatches = parseInt(req.body.highNumMatches);
+app.get('/account/get', (req, res) => {
+  const playerID = req.body.playerID;
 
-  const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
+  const data = [playerID];
   const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
 
   db.query(selectAccountSQL, data, (err, result) => {
@@ -970,11 +1010,11 @@ app.post('/account/get', (req, res) => {
     }
 
     if (result.length === 0) {
-      res.status(200).json('No Matching Players');
+      res.status(404).json('No Matching Players');
       return;
     }
 
-    res.status(200).json(result);
+    res.status(200).json(result[0]);
   });
 });
 
@@ -1032,6 +1072,24 @@ app.post('/account/get/isVerifiedOrganizer', (req, res) => {
   });
 });
 
+app.post('/account/updatename', (req, res) => {
+  let name = req.body.name;
+  let playerID = req.body.playerID;
+
+  const data = [name, playerID];
+  const updateNameSQL = "UPDATE Players SET name = ? WHERE playerID = ?";
+
+  db.query(updateNameSQL, data, (err, result) => {
+    if (err) {
+      console.error('Error updating name: ', err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
+  });
+});
+
 /* Set Account ELO */
 app.post('/account/elo/set', (req, res) => {
   const email = req.body.email;
@@ -1067,6 +1125,23 @@ app.post('/account/elo/set', (req, res) => {
 
       res.status(200).json('Success');
     });
+  });
+});
+
+app.post('/account/delete', (req, res) => {
+  const playerID = req.body.playerID;
+
+  const data = [playerID];
+  const deletePlayerSQL = "DELETE FROM Players WHERE playerID = ?";
+
+  db.query(deletePlayerSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error deleting player: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
   });
 });
 

@@ -30,7 +30,7 @@
                     <a id="nav-home" href="/">Home</a> |
                     <% if (isSignedIn) { %>
                         <a href="/tournament/create">Create Tournament</a> |
-                        <a href='/player?id=<%= sessionPlayerId %>'> Account</a> |
+                        <a href='/account/view?id=<%= sessionPlayerId %>'> Account</a> |
                         <a href="/about">About</a> |
                         <a href="/logout">Logout</a>
                     <% } else { %>
@@ -41,6 +41,7 @@
                 </nav>
             </div>
         </header>
+
         <div class="banner-area">
             <h2>Home</h2>
         </div>

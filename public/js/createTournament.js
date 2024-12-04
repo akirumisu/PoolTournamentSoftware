@@ -19,7 +19,7 @@ $(async function() {
       $('#create-tournament-bracket-256').prop('disabled', false);
       $('.paid-bracket-option').css("color", "black");
     } else if (response === 'Not Paid') {
-      $('#create-tournament-bracket-alert').text("32+ Sized Brackets Are Only For Paid Members");
+      $('#create-tournament-bracket-alert').html('32+ Sized Brackets Are Only For <a href="/membership" class="alert-link">Premium Members</a>');
       $('#create-tournament-bracket-alert').slideDown();
     } else if (response === 'No Matching Players') {
       $('#create-tournament-form').hide();

@@ -40,13 +40,15 @@
             <li>Delete tournament</li>
           </ul>
           <div class="header-right">
-              <button class="text-button"><a href="/about">About</a></button>
-              <p> | </p>
-              <button class="text-button"><a href="/contact">Contact</a></button>
-              <p> | </p>
-              <button class="text-button"><a href="/login">Login</a></button>
-              <p> | </p>
-              <button class="text-button"><a href="/createaccount">Create Account</a></button>
+            <% if (isSignedIn) { %>
+              <a href='/account/view?id=<%= sessionPlayerId %>'> Account</a> |
+              <a href="/about">About</a> |
+              <a href="/logout">Logout</a>
+            <% } else { %>
+              <a href="/about">About</a> |
+              <a href="/login">Sign In</a> |
+              <a href="/createaccount">Sign Up</a>
+            <% } %>
           </div>
       </div>
 
