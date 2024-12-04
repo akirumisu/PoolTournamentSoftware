@@ -53,7 +53,7 @@ $(async function() {
       $.post('/account/delete', deleteData, function(response) {
         if (response === 'Success') {
           alert("Your account was successfully deleted. We are sorry to see you go");
-          location.reload();
+          window.location.href = "/logout";
         }
         else {
           alert("An error has occured, please try again later or contact an admin for help.");

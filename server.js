@@ -170,7 +170,7 @@ app.get('/account/view', (req, res) => {
   }
 
   const data = [playerID];
-  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
@@ -403,7 +403,7 @@ app.post('/account/create', (req, res) => {
     }
     
     else {
-      const insertNewPlayerSQL = "INSERT INTO Players (email, name, password, elo, numMatches, isPaid) VALUES (?, ?, ?, 100, 0, 0)";
+      const insertNewPlayerSQL = "INSERT INTO Players (email, name, password, elo, numMatches, isPaid, isDeleted) VALUES (?, ?, ?, 100, 0, 0, 0)";
       
       db.query(insertNewPlayerSQL, data, (err2, result2) => {
         if (err2) {
@@ -487,25 +487,6 @@ app.get('/logout', (req, res) => {
     }
     res.clearCookie('connect.sid'); // Clear express session cookies
     res.redirect('/');
-  });
-});
-
-/* Delete Player Account */
-app.post('/account/delete', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  const data = [email, password];
-  const findEmailSQL = "DELETE FROM Players WHERE email = ? and password = ?";
-
-  db.query(findEmailSQL, data, (err, result) => {
-    if (err) {
-      console.error("Error deleting account: ", err);
-      res.status(500).json('Error');
-      return;
-    }
-
-    res.status(200).json('Success');
   });
 });
 
@@ -977,7 +958,7 @@ app.post('/account/search', (req, res) => {
   highNumMatches = setDefaultNum(highNumMatches, 9999);
 
   const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
-  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ? AND isDeleted != 1";
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
@@ -1000,7 +981,7 @@ app.get('/account/get', (req, res) => {
   const playerID = req.body.playerID;
 
   const data = [playerID];
-  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
@@ -1022,7 +1003,7 @@ app.post('/account/get/isPaid', (req, res) => {
   let playerID = req.body.playerID;
 
   const data = [playerID];
-  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
+  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectisPaidSQL, data, (err, result) => {
     if (err) {
@@ -1049,7 +1030,7 @@ app.post('/account/get/isVerifiedOrganizer', (req, res) => {
   let playerID = req.body.playerID;
 
   const data = [playerID];
-  const selectisPaidSQL = "SELECT isVerifiedOrganizer FROM Players WHERE playerID = ?";
+  const selectisPaidSQL = "SELECT isVerifiedOrganizer FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectisPaidSQL, data, (err, result) => {
     if (err) {
@@ -1077,7 +1058,7 @@ app.post('/account/updatename', (req, res) => {
   let playerID = req.body.playerID;
 
   const data = [name, playerID];
-  const updateNameSQL = "UPDATE Players SET name = ? WHERE playerID = ?";
+  const updateNameSQL = "UPDATE Players SET name = ? WHERE playerID = ? AND isDeleted != 1";
 
   db.query(updateNameSQL, data, (err, result) => {
     if (err) {
@@ -1132,7 +1113,7 @@ app.post('/account/delete', (req, res) => {
   const playerID = req.body.playerID;
 
   const data = [playerID];
-  const deletePlayerSQL = "DELETE FROM Players WHERE playerID = ?";
+  const deletePlayerSQL = "UPDATE Players SET isDeleted = 1 WHERE playerID = ?";
 
   db.query(deletePlayerSQL, data, (err, result) => {
     if (err) {

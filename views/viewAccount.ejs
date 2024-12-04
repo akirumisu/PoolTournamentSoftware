@@ -52,10 +52,17 @@
           Become A <a href="/membership" class="alert-link">Premium Member</a> Today For Only $7/month!
         </div>
 
-        <h4>Elo</h4><br>
-        <p><%= viewedAccount.elo %></p>
-        <h4>Matches Played</h4><br>
-        <p><%= viewedAccount.numMatches %></p>
+        <div class="row row-cols-2">
+          <div class="col d-flex justify-content-end align-items-center"><h4>Elo:</h4></div>
+          <div class="col d-flex justify-content-start align-items-center"><h5><%= viewedAccount.elo %></h5></div>
+        </div>
+        <br>
+        <div class="row row-cols-2">
+          <div class="col d-flex justify-content-end align-items-center"><h4>Matches Played:</h4></div>
+          <div class="col d-flex justify-content-start align-items-center"><h5><%= viewedAccount.numMatches %></h5></div>
+        </div>
+
+        <br><br>
 
         <% if (owner) { %>
           <button type="button" class="btn btn-secondary" id="change-name-button">Change Name <i class="bi bi-pencil-square"></i></button>

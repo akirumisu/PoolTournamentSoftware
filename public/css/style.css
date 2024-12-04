@@ -217,7 +217,6 @@ input {
 
 .label {
 text-align: center;
-
 }
 
 .center {
@@ -225,5 +224,14 @@ display: block;
 margin-left: auto;
 margin-right: auto;
 width: 50%; 
+}
 
+#change-name-button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#delete-account-button {
+  margin-left: 10px;
+  margin-right: 10px;
 }
