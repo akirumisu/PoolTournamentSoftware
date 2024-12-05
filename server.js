@@ -435,7 +435,7 @@ app.post('/account/login', (req, res) => {
   const password = req.body.password;
 
   const data = [email, password];
-  const findEmailSQL = "SELECT email FROM Players WHERE email = ?"
+  const findEmailSQL = "SELECT email FROM Players WHERE email = ? AND isDeleted != 1"
 
   db.query(findEmailSQL, data, (err1, result1) => {
     if (err1) {
