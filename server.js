@@ -554,7 +554,7 @@ app.post('/tournament/get-specific', (req, res) => {
 
   const data = [tournamentID];
   const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
-  const selectPlayersInTournamentSQL = "SELECT seed, a.playerID, name, elo, numMatches FROM dbMain.PlayersInTournament a LEFT JOIN dbMain.Players b ON a.playerID = b.playerID WHERE a.tournamentID=?";
+  const selectPlayersInTournamentSQL = "SELECT seed, a.playerID, name, elo, numMatches, numChips FROM dbMain.PlayersInTournament a LEFT JOIN dbMain.Players b ON a.playerID = b.playerID WHERE a.tournamentID=?";
   const selectMatchesSQL = "SELECT playerOneID, playerTwoID, winnerID, numRound FROM Matches WHERE tournamentID = ?";
 
   db.query(selectTournamentSQL, data, (err, result) => {
@@ -587,6 +587,46 @@ app.post('/tournament/get-specific', (req, res) => {
         res.status(200).json(returnData);
       });
     });
+
+  });
+});
+
+app.post('/tournament/update-tables', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.password;
+  const numTables = req.body.numTables;
+  const credentialData = [tournamentID, organizerID, orgPassword];
+  const data = [numTables, tournamentID];
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const updateNumTablesSQL = "UPDATE Tournaments SET numTables = ? WHERE tournamentID = ?";
+
+  db.query(credentialSQL, credentialData, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during update-tables: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    db.query(updateNumTablesSQL, data, (err2, result2) => {
+      
+      if (err2) {
+        console.error("Error updating numTables: ", err1);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      res.status(200).json('Success');
+
+    });
+
 
   });
 });
@@ -637,7 +677,6 @@ app.post('/tournament/mark-win', (req, res) => {
 
 app.post('/tournament/update-seeds', (req, res) => {
   const credentials = req.body.credentials;
-  const tournamentID = req.body.tournamentID;
   const playersInTournament = req.body.playersInTournament;
 
 
@@ -646,6 +685,49 @@ app.post('/tournament/update-seeds', (req, res) => {
   const credentialData = [credentials.tournamentID, credentials.organizerID, credentials.password];
 
   db.query(credentialSQL, credentialData, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during update-seeds: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    // If we got here, then credentials are good, and the person making the request is the correct organizer for this tournament
+    const updateSeedSQL = "UPDATE PlayersInTournament SET seed = ?, numChips = ? WHERE tournamentID = ? and playerID = ?";
+    for (let player of playersInTournament) {
+      if (player.numChips == null) {
+        player.numChips = 0;
+      }
+      const updateSeedData = [player.seed, player.numChips, credentials.tournamentID, player.playerID]
+      db.query(updateSeedSQL, updateSeedData, (err2, result2) => {
+        if (err2) {
+          console.error("Error while updating player seeds", err2);
+          return;
+        }
+      });
+    }
+    res.status(200).json('Success');
+  });
+  
+})
+
+app.post('/tournament/update-numTables', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.orgPassword;
+  const numTables = req.body.numTables;
+
+  let data = [tournamentID, organizerID, orgPassword];
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const updateNumTablesSQL = "UPDATE Tournaments SET numTables = ? WHERE tournamentID = ?";
+
+  db.query(credentialSQL, data, (err1, result1) => {
     if (err1) {
       console.error("Error checking credentials during mark-win: ", err1);
       res.status(500).json('Error');
@@ -657,19 +739,67 @@ app.post('/tournament/update-seeds', (req, res) => {
       return;
     }
 
-    // If we got here, then credentials are good, and the person making the request is the correct organizer for this tournament
-    const updateSeedSQL = "UPDATE PlayersInTournament SET seed = ? WHERE tournamentID = ? and playerID = ?";
-    for (let player of playersInTournament) {
-      db.query(updateSeedSQL, [player.seed, credentials.tournamentID, player.playerID], (err2, result2) => {
-        if (err2) {
-          console.error("Error while updating player seeds", err2);
-          return;
-        }
-      });
-    }
-  });
+    data = [numTables, tournamentID];
+
+    db.query(updateNumTablesSQL, data, (err2, result) => {
+      if (err2) {
+        console.error("Error updating tournament numTables: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
   
-})
+      res.status(200).json("Success");
+    });
+
+  });
+
+
+
+  
+});
+
+app.post('/tournament/update-numChips', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.orgPassword;
+  const numChips = req.body.numChips;
+
+  let data = [tournamentID, organizerID, orgPassword];
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const updateNumChipsSQL = "UPDATE Tournaments SET numChips = ? WHERE tournamentID = ?";
+
+  db.query(credentialSQL, data, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during update-numChips: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    data = [numChips, tournamentID];
+
+    db.query(updateNumChipsSQL, data, (err2, result) => {
+      if (err2) {
+        console.error("Error updating tournament numChips: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      res.status(200).json("Success");
+    });
+
+  });
+
+
+
+  
+});
 
 /* Register For Tournament */
 app.post('/tournament/register', (req, res) => {
@@ -821,7 +951,7 @@ app.post('/tournament/start', (req, res) => {
 
   db.query(credentialSQL, data, (err1, result1) => {
     if (err1) {
-      console.error("Error checking credentials during mark-win: ", err1);
+      console.error("Error checking credentials during tournament/start: ", err1);
       res.status(500).json('Error');
       return;
     }
@@ -834,6 +964,47 @@ app.post('/tournament/start', (req, res) => {
     db.query(startTournamentSQL, tournamentID, (err2, result) => {
       if (err2) {
         console.error("Error starting tournament: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      res.status(200).json("Success");
+    });
+
+  });
+
+
+
+  
+});
+
+app.post('/tournament/end', (req, res) => {
+  const tournamentID = req.body.tournamentID;
+  const organizerID = req.body.organizerID;
+  const orgPassword = req.body.password;
+
+  const data = [tournamentID, organizerID, orgPassword];
+  console.log(data);
+
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const endTournamentSQL = "UPDATE Tournaments SET isActive = 2 WHERE tournamentID = ?";
+
+  db.query(credentialSQL, data, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during tournament/end: ", err1);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    db.query(endTournamentSQL, tournamentID, (err2, result) => {
+      if (err2) {
+        console.error("Error ending tournament: ", err2);
         res.status(500).json('Error');
         return;
       }
