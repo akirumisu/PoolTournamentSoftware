@@ -7,8 +7,11 @@ body {
 
 .bordered-container {
   border: .5vw solid #020202;
-  padding: .5vw;
-  min-height: 100vh;
+  padding-top: 75px;
+  padding-bottom: 1vh;
+  padding-right: 1vw;
+  padding-left: 1vw;
+  min-height: calc(100vh - 400px);
   margin: 0;
   box-sizing: border-box;
   align-items: top;
@@ -101,7 +104,6 @@ header {
 
 
 .logo {
-  width: 30%;
   float: left;
   text-align: left;
   line-height: 75px;

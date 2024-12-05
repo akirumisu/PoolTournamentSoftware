@@ -49,7 +49,6 @@ $(async function() {
         playerID: playerID, // session playerID, so you cannot delete other people's account
       }
   
-      //TODO: make the delete post request work
       $.post('/account/delete', deleteData, function(response) {
         if (response === 'Success') {
           alert("Your account was successfully deleted. We are sorry to see you go");

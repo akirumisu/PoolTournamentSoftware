@@ -105,6 +105,7 @@
   cursor: pointer;
 }
 
+/*
 .tournament-admin-menu-button {
   float: right;
   cursor: pointer;
@@ -149,4 +150,12 @@
 
 .tournament-admin-menu ul li:hover {
   background-color: #f0f0f0;
+}
+*/
+
+#tournament-name {
+  font-size: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  color: green;
 }
