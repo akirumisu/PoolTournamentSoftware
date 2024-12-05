@@ -560,7 +560,7 @@ app.post('/tournament/search', (req, res) => {
   console.log(req.body.name);
   const data = ['%'+req.body.name+'%']
   data.name = setDefaultString(data.name, "");
-  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE name LIKE ?";
+  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE name LIKE ? and isDeleted = 0";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
@@ -578,7 +578,7 @@ app.post('/tournament/get-specific', (req, res) => {
   const tournamentID = req.body.tournamentID;
 
   const data = [tournamentID];
-  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ?";
+  const selectTournamentSQL = "SELECT * FROM Tournaments WHERE tournamentID = ? and isDeleted = 0";
   const selectPlayersInTournamentSQL = "SELECT seed, a.playerID, name, elo, numMatches, numChips FROM dbMain.PlayersInTournament a LEFT JOIN dbMain.Players b ON a.playerID = b.playerID WHERE a.tournamentID=?";
   const selectMatchesSQL = "SELECT playerOneID, playerTwoID, winnerID, numRound FROM Matches WHERE tournamentID = ?";
 
@@ -625,7 +625,7 @@ app.post('/tournament/update-tables', (req, res) => {
   const data = [numTables, tournamentID];
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? Tournaments.isDeleted = 0";
   const updateNumTablesSQL = "UPDATE Tournaments SET numTables = ? WHERE tournamentID = ?";
 
   db.query(credentialSQL, credentialData, (err1, result1) => {
@@ -669,7 +669,7 @@ app.post('/tournament/mark-win', (req, res) => {
   const credentialData = [tournamentID, organizerID, orgPassword];
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
 
   db.query(credentialSQL, credentialData, (err1, result1) => {
     if (err1) {
@@ -706,7 +706,7 @@ app.post('/tournament/update-seeds', (req, res) => {
 
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
   const credentialData = [credentials.tournamentID, credentials.organizerID, credentials.password];
 
   db.query(credentialSQL, credentialData, (err1, result1) => {
@@ -749,7 +749,7 @@ app.post('/tournament/update-numTables', (req, res) => {
   let data = [tournamentID, organizerID, orgPassword];
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
   const updateNumTablesSQL = "UPDATE Tournaments SET numTables = ? WHERE tournamentID = ?";
 
   db.query(credentialSQL, data, (err1, result1) => {
@@ -792,7 +792,7 @@ app.post('/tournament/update-numChips', (req, res) => {
   let data = [tournamentID, organizerID, orgPassword];
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
   const updateNumChipsSQL = "UPDATE Tournaments SET numChips = ? WHERE tournamentID = ?";
 
   db.query(credentialSQL, data, (err1, result1) => {
@@ -854,7 +854,7 @@ app.post('/tournament/register', (req, res) => {
     playerElo = result[0].elo;
 
     // Player exists, now check the tournament details
-    const checkTournamentDetails = "SELECT * FROM Tournaments WHERE TournamentID = ?";
+    const checkTournamentDetails = "SELECT * FROM Tournaments WHERE TournamentID = ? and isDeleted = 0";
     db.query(checkTournamentDetails, tournamentID, (err, result) => {
       if (err) {
         console.error("Error getting Tournaments: ", err);
@@ -971,7 +971,7 @@ app.post('/tournament/start', (req, res) => {
   const data = [tournamentID, organizerID, orgPassword];
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
   const startTournamentSQL = "UPDATE Tournaments SET isActive = 1 WHERE tournamentID = ?";
 
   db.query(credentialSQL, data, (err1, result1) => {
@@ -1009,10 +1009,9 @@ app.post('/tournament/end', (req, res) => {
   const orgPassword = req.body.password;
 
   const data = [tournamentID, organizerID, orgPassword];
-  console.log(data);
 
   // Check credentials
-  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ?";
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
   const endTournamentSQL = "UPDATE Tournaments SET isActive = 2 WHERE tournamentID = ?";
 
   db.query(credentialSQL, data, (err1, result1) => {
@@ -1060,7 +1059,7 @@ app.post('/tournament/get', (req, res) => {
 
   const data = ['%'+name+'%', lowEloLimit, highEloLimit, minIsRanked, maxIsRanked, minGreensFee, maxGreensFee, minBracketSize, maxBracketSize, '%'+gamemode+'%', minIsActive, maxIsActive];
   const selectTournamentSQL = "SELECT tournamentID, name, description, date, location, lowEloLimit, highEloLimit, isRanked, greensFee, bracketSize, gamemode, isActive FROM Tournaments " +
-  "WHERE name LIKE ? AND lowEloLimit >= ? AND highEloLimit <= ? AND isRanked >= ? AND isRanked <= ? AND greensFee >= ? AND greensFee <= ? AND bracketSize >= ? AND bracketSize <= ? AND gamemode LIKE ? AND isActive >= ? AND isActive <= ?";
+  "WHERE name LIKE ? AND lowEloLimit >= ? AND highEloLimit <= ? AND isRanked >= ? AND isRanked <= ? AND greensFee >= ? AND greensFee <= ? AND bracketSize >= ? AND bracketSize <= ? AND gamemode LIKE ? AND isActive >= ? AND isActive <= ? and isDeleted = 0";
 
   db.query(selectTournamentSQL, data, (err, result) => {
     if (err) {
@@ -1100,18 +1099,35 @@ app.post('/tournament/get-players', (req, res) => {
 app.post('/tournament/delete', (req, res) => {
   const tournamentID = req.body.tournamentID;
   const organizerID = req.body.organizerID;
+  const password = req.body.password;
 
-  const data = [tournamentID, organizerID];
-  const deleteTournamentSQL = "DELETE FROM Tournaments WHERE tournamentID = ? and organizerID = ?";
+  const data = [tournamentID, organizerID, password];
 
-  db.query(deleteTournamentSQL, data, (err, result) => {
-    if (err) {
-      console.error("Error deleting tournament: ", err);
+  // Check credentials
+  const credentialSQL = "SELECT tournamentID FROM Tournaments JOIN Players ON Tournaments.organizerID = Players.playerID WHERE Tournaments.tournamentID = ? and Tournaments.organizerID = ? and Players.password = ? and Tournaments.isDeleted = 0";
+  const deleteTournamentSQL = "UPDATE Tournaments SET isDeleted = 1 WHERE tournamentID = ?";
+
+  db.query(credentialSQL, data, (err1, result1) => {
+    if (err1) {
+      console.error("Error checking credentials during tournament/end: ", err1);
       res.status(500).json('Error');
       return;
     }
 
-    res.status(200).json('Success');
+    if (result1.length === 0) {
+      res.status(200).json('Incorrect Password/Lacking Permissions');
+      return;
+    }
+
+    db.query(deleteTournamentSQL, tournamentID, (err2, result) => {
+      if (err2) {
+        console.error("Error deleting tournament: ", err2);
+        res.status(500).json('Error');
+        return;
+      }
+  
+      res.status(200).json("Success");
+    });
   });
 });
 

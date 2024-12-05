@@ -617,6 +617,16 @@ $(async function() {
 
     if (credentials.organizerID == tournamentOrganizerID) {
       $('#tournament-admin-menu-button').removeClass("hidden");
+      $('.dropdown-item').on('click', function(event) {
+        event.preventDefault(); // Prevent default behavior
+        if (confirm('Are you sure you want to delete this tournament?')) {
+            console.log(credentials);
+            $.post('/tournament/delete', credentials, function(response) {
+              console.log(response);
+              location.reload();
+            });
+        }
+      });
       /*
       $('.tournament-admin-menu-button').removeClass("hidden");
       $('.tournament-admin-menu-button').on('click', function(event) {
@@ -734,6 +744,12 @@ $(async function() {
       });
     }
     
+  })
+  .fail(function(jqXHR, textStatus, error) {
+    if (jqXHR.status === 404) {
+      alert("Failed to find tournament with id " + data.tournamentID);
+      window.location.href = "/";
+    }
   });
 });
 
