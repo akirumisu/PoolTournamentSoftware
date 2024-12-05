@@ -7,8 +7,11 @@ body {
 
 .bordered-container {
   border: .5vw solid #020202;
-  padding: .5vw;
-  min-height: 100vh;
+  padding-top: 75px;
+  padding-bottom: 1vh;
+  padding-right: 1vw;
+  padding-left: 1vw;
+  min-height: calc(100vh - 400px);
   margin: 0;
   box-sizing: border-box;
   align-items: top;
@@ -45,6 +48,8 @@ body {
   color: inherit;
   cursor: pointer;
   font-size: larger;
+
+  
 }
 
 .inner-container {
@@ -99,7 +104,6 @@ header {
 
 
 .logo {
-  width: 30%;
   float: left;
   text-align: left;
   line-height: 75px;
@@ -133,9 +137,10 @@ nav a:hover {
 }
 
 .banner-area {
-  background-image: url(/res/AIPool.png);
-  background-size: cover;
-  background-position: center center;
+  background-image: url(/res/PoolBanner2.jpeg);
+  background-size: 100%;
+  /* background-position: 75px; */
+  background-repeat: no-repeat;
   top: 75px;
   height: 100vh;
   width: 100%;
@@ -151,7 +156,7 @@ nav a:hover {
   width: 100%;
   height: 100%;
   background: rgb(23, 95, 20);
-  opacity: .3;
+  opacity: .5;
   z-index: -1;
 }
 
@@ -212,3 +217,34 @@ input {
 #nav-home {
   margin-left: 2vw;
 }
+
+.label {
+text-align: center;
+}
+
+.center {
+display: block;
+margin-left: auto;
+margin-right: auto;
+width: 50%; 
+}
+
+#change-name-button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#delete-account-button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.container {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 5px;
+}
+
+
+

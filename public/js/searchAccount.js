@@ -55,7 +55,7 @@ $(function() {
 
     window.history.replaceState(null, '', "/account/search?name=" + encodeURIComponent(data.name));
 
-    $.post('/account/get', data, function(response) {
+    $.post('/account/search', data, function(response) {
       $('#player-view-row').empty();
 
       if (response === 'No Matching Players') {
@@ -72,7 +72,7 @@ $(function() {
           let player = response[index];
           let column = $('<div class="col-lg-4"></div>');
           let itemHTML = '<div class="card">' +
-            '<a href="/player?id=' + player.playerID + '"> <h5 class="card-title">' + player.name + '</h5> </a>' +
+            '<a href="/account/view?id=' + player.playerID + '"> <h5 class="card-title">' + player.name + '</h5> </a>' +
             '<ul class="list-group">' +
               '<li class="list-group-item"> <b>Elo:</b> ' + player.elo + '</li>' +
               '<li class="list-group-item"> <b>Matches Played:</b> ' + player.numMatches + '</li>' +

@@ -157,9 +157,53 @@ app.get('/account/search', (req, res) => {
   });
 });
 
+// Serve viewaccount.ejs
+app.get('/account/view', (req, res) => {
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+  const queryParameters = req.query;
+  const playerID = queryParameters.id;
+
+  if (!playerID) {
+    res.status(404).json('No id specified');
+    return;
+  }
+
+  const data = [playerID];
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ? AND isDeleted != 1";
+
+  db.query(selectAccountSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error Selecting Players: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).json('No Matching Players');
+      return;
+    }
+
+    let owner = (result[0].playerID === sessionPlayerId) ? true : false;
+
+    res.render('viewaccount', {
+      isSignedIn: isSignedIn,
+      sessionPlayerId: sessionPlayerId,
+      viewedAccount: result[0],
+      owner: owner
+    });
+  });
+});
+
 // Serve viewTournament.ejs
 app.get('/tournament/view', (req, res) => {
-  res.render('viewtournament');
+  let isSignedIn = req.session.playerID ? true : false;
+  let sessionPlayerId = req.session.playerID || null;
+
+  res.render('viewtournament', {
+    isSignedIn: isSignedIn,
+    sessionPlayerId: sessionPlayerId
+  });
 });
 
 // Serve membership.ejs
@@ -359,7 +403,7 @@ app.post('/account/create', (req, res) => {
     }
     
     else {
-      const insertNewPlayerSQL = "INSERT INTO Players (email, name, password, elo, numMatches, isPaid) VALUES (?, ?, ?, 100, 0, 0)";
+      const insertNewPlayerSQL = "INSERT INTO Players (email, name, password, elo, numMatches, isPaid, isDeleted) VALUES (?, ?, ?, 100, 0, 0, 0)";
       
       db.query(insertNewPlayerSQL, data, (err2, result2) => {
         if (err2) {
@@ -391,7 +435,7 @@ app.post('/account/login', (req, res) => {
   const password = req.body.password;
 
   const data = [email, password];
-  const findEmailSQL = "SELECT email FROM Players WHERE email = ?"
+  const findEmailSQL = "SELECT email FROM Players WHERE email = ? AND isDeleted != 1"
 
   db.query(findEmailSQL, data, (err1, result1) => {
     if (err1) {
@@ -443,25 +487,6 @@ app.get('/logout', (req, res) => {
     }
     res.clearCookie('connect.sid'); // Clear express session cookies
     res.redirect('/');
-  });
-});
-
-/* Delete Player Account */
-app.post('/account/delete', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  const data = [email, password];
-  const findEmailSQL = "DELETE FROM Players WHERE email = ? and password = ?";
-
-  db.query(findEmailSQL, data, (err, result) => {
-    if (err) {
-      console.error("Error deleting account: ", err);
-      res.status(500).json('Error');
-      return;
-    }
-
-    res.status(200).json('Success');
   });
 });
 
@@ -1090,8 +1115,8 @@ app.post('/tournament/delete', (req, res) => {
   });
 });
 
-/* Get Accounts */
-app.post('/account/get', (req, res) => {
+/* Get Accounts For Searching */
+app.post('/account/search', (req, res) => {
   let name = req.body.name;
   name = setDefaultString(name, "");
   let lowElo = parseInt(req.body.lowElo);
@@ -1104,7 +1129,7 @@ app.post('/account/get', (req, res) => {
   highNumMatches = setDefaultNum(highNumMatches, 9999);
 
   const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
-  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ?";
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE name LIKE ? AND elo >= ? AND elo <= ? AND numMatches >= ? AND numMatches <= ? AND isDeleted != 1";
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
@@ -1123,15 +1148,11 @@ app.post('/account/get', (req, res) => {
 });
 
 /* View Account Info */
-app.post('/account/get', (req, res) => {
-  const name = req.body.name;
-  const lowElo = parseInt(req.body.lowElo);
-  const highElo = parseInt(req.body.highElo);
-  const lowNumMatches = parseInt(req.body.lowNumMatches);
-  const highNumMatches = parseInt(req.body.highNumMatches);
+app.get('/account/get', (req, res) => {
+  const playerID = req.body.playerID;
 
-  const data = ['%'+name+'%', lowElo, highElo, lowNumMatches, highNumMatches];
-  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ?";
+  const data = [playerID];
+  const selectAccountSQL = "SELECT playerID, name, elo, numMatches FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectAccountSQL, data, (err, result) => {
     if (err) {
@@ -1141,11 +1162,11 @@ app.post('/account/get', (req, res) => {
     }
 
     if (result.length === 0) {
-      res.status(200).json('No Matching Players');
+      res.status(404).json('No Matching Players');
       return;
     }
 
-    res.status(200).json(result);
+    res.status(200).json(result[0]);
   });
 });
 
@@ -1153,7 +1174,7 @@ app.post('/account/get/isPaid', (req, res) => {
   let playerID = req.body.playerID;
 
   const data = [playerID];
-  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ?";
+  const selectisPaidSQL = "SELECT isPaid FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectisPaidSQL, data, (err, result) => {
     if (err) {
@@ -1180,7 +1201,7 @@ app.post('/account/get/isVerifiedOrganizer', (req, res) => {
   let playerID = req.body.playerID;
 
   const data = [playerID];
-  const selectisPaidSQL = "SELECT isVerifiedOrganizer FROM Players WHERE playerID = ?";
+  const selectisPaidSQL = "SELECT isVerifiedOrganizer FROM Players WHERE playerID = ? AND isDeleted != 1";
 
   db.query(selectisPaidSQL, data, (err, result) => {
     if (err) {
@@ -1200,6 +1221,24 @@ app.post('/account/get/isVerifiedOrganizer', (req, res) => {
     }
 
     res.status(200).json('Not Verified');
+  });
+});
+
+app.post('/account/updatename', (req, res) => {
+  let name = req.body.name;
+  let playerID = req.body.playerID;
+
+  const data = [name, playerID];
+  const updateNameSQL = "UPDATE Players SET name = ? WHERE playerID = ? AND isDeleted != 1";
+
+  db.query(updateNameSQL, data, (err, result) => {
+    if (err) {
+      console.error('Error updating name: ', err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
   });
 });
 
@@ -1238,6 +1277,23 @@ app.post('/account/elo/set', (req, res) => {
 
       res.status(200).json('Success');
     });
+  });
+});
+
+app.post('/account/delete', (req, res) => {
+  const playerID = req.body.playerID;
+
+  const data = [playerID];
+  const deletePlayerSQL = "UPDATE Players SET isDeleted = 1 WHERE playerID = ?";
+
+  db.query(deletePlayerSQL, data, (err, result) => {
+    if (err) {
+      console.error("Error deleting player: ", err);
+      res.status(500).json('Error');
+      return;
+    }
+
+    res.status(200).json('Success');
   });
 });
 

@@ -616,12 +616,14 @@ $(async function() {
     } // End chip population
 
     if (credentials.organizerID == tournamentOrganizerID) {
-
+      $('#tournament-admin-menu-button').removeClass("hidden");
+      /*
       $('.tournament-admin-menu-button').removeClass("hidden");
       $('.tournament-admin-menu-button').on('click', function(event) {
         $('.tournament-admin-menu').toggleClass("active");
         event.stopPropagation();
       });
+      */
 
       if (isActive == 0) {
         $('#tournament-start-button').removeClass("hidden");
