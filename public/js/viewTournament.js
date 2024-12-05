@@ -263,6 +263,16 @@ function updateSeeds(credentials, playersInTournament) {
   });
 }
 
+async function asyncUpdateSeeds(credentials, playersInTournament) {
+  const data = {
+    credentials: credentials,
+    playersInTournament: playersInTournament
+  }
+  await $.post('/tournament/update-seeds', data, function(response) {
+
+  });
+}
+
 function updateQueue(playersInTournament) {
 
   // Clear queue
@@ -643,13 +653,15 @@ $(async function() {
             organizerID: credentials.organizerID,
             orgPassword: credentials.password
           }
-          $.post('/tournament/start', data, function(response) {
+          $.post('/tournament/start', data, async function(response) {
             if (gamemode == "chip") {
+              console.log(playersInTournament)
               for (let player of playersInTournament) {
                 player.numChips = numChips;
               }
+              console.log(playersInTournament)
               populateTables(playersInTournament, numTables, tables, true);
-              updateSeeds(credentials, playersInTournament);
+              await asyncUpdateSeeds(credentials, playersInTournament);
               location.reload();
             } else {
               location.reload();
