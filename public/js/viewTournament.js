@@ -699,18 +699,15 @@ $(async function() {
       } else { // If chip
         // Create tables array
         tables.splice(0, tables.length);
-        let j = 0;
         for (let i = 1; i <= numTables; i++) {
           let playersOnTable = [];
           for (let player of playersInTournament) {
-            if (player.seed == -i) {
+            if (player.seed === -i) {
               playersOnTable.push(player);
             }
           }
           tables.push(playersOnTable);
-          j = j + 1;
         }
-        tables.length = j+1;
         if (tables.length > numTables || tables.some(table => table.length != 2)) {
           console.log("reset");
           let playersRemaining = playersInTournament.filter(player => player.numChips > 0)
@@ -721,7 +718,7 @@ $(async function() {
             populateTables(playersInTournament, numTables, tables, true);
           }
         } else {
-          populateTables(playersInTournament, numTables, tables);
+          updateTables(tables, numTables);
         }
         updateSeeds(credentials, playersInTournament);
         updateQueue(playersInTournament);
