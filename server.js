@@ -151,7 +151,7 @@ app.get('/account/search', (req, res) => {
   let isSignedIn = req.session.playerID ? true : false;
   let sessionPlayerId = req.session.playerID || null;
 
-  res.render('searchaccount', {
+  res.render('searchAccount', {
     isSignedIn: isSignedIn,
     sessionPlayerId: sessionPlayerId
   });
@@ -186,7 +186,7 @@ app.get('/account/view', (req, res) => {
 
     let owner = (result[0].playerID === sessionPlayerId) ? true : false;
 
-    res.render('viewaccount', {
+    res.render('viewAccount', {
       isSignedIn: isSignedIn,
       sessionPlayerId: sessionPlayerId,
       viewedAccount: result[0],
