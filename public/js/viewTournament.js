@@ -689,6 +689,8 @@ $(async function() {
           }
         });
       }
+    } else {
+      $('.tournament-bracket-win-button').addClass("hidden");
     }
     if (isActive) {
       if (gamemode == "single-elim") {
@@ -725,7 +727,7 @@ $(async function() {
         updateQueue(playersInTournament);
       }
     }
-    if (isActive == 0) {
+    if (isActive == 0 && organizerID !== -1) {
       $('#tournament-register-button').removeClass("hidden");
       if (playersInTournament.some(player => player.playerID == credentials.organizerID)) {
         $('#tournament-register-button').addClass("tournament-withdraw-button");
